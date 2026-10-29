@@ -1,0 +1,79 @@
+graph MCD {
+  graph [layout=neato, splines=true, overlap=true, fontname="Helvetica", pad=0.4, bgcolor="white"];
+  node  [fontname="Helvetica", fontsize=12];
+  edge  [fontname="Helvetica", fontsize=12, color="#2E2A26"];
+
+  ESPECE [pos="0,561!", shape=plain, label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#B5502F">
+    <TR><TD BGCOLOR="#B5502F"><FONT COLOR="white"><B>ESPECE</B></FONT></TD></TR>
+    <TR><TD ALIGN="LEFT"><U>id_espece</U></TD></TR>
+    <TR><TD ALIGN="LEFT">nom_espece</TD></TR></TABLE>>];
+
+  RACE [pos="316,561!", shape=plain, label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#B5502F">
+    <TR><TD BGCOLOR="#B5502F"><FONT COLOR="white"><B>RACE</B></FONT></TD></TR>
+    <TR><TD ALIGN="LEFT"><U>id_race</U></TD></TR>
+    <TR><TD ALIGN="LEFT">nom_race</TD></TR></TABLE>>];
+
+  ANIMAL [pos="691,561!", shape=plain, label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#B5502F">
+    <TR><TD BGCOLOR="#B5502F"><FONT COLOR="white"><B>ANIMAL</B></FONT></TD></TR>
+    <TR><TD ALIGN="LEFT"><U>id_animal</U></TD></TR>
+    <TR><TD ALIGN="LEFT">nom</TD></TR>
+    <TR><TD ALIGN="LEFT">sexe</TD></TR>
+    <TR><TD ALIGN="LEFT">date_naissance</TD></TR>
+    <TR><TD ALIGN="LEFT">taille</TD></TR>
+    <TR><TD ALIGN="LEFT">energie</TD></TR>
+    <TR><TD ALIGN="LEFT">ok_enfants</TD></TR>
+    <TR><TD ALIGN="LEFT">ok_chiens</TD></TR>
+    <TR><TD ALIGN="LEFT">ok_chats</TD></TR>
+    <TR><TD ALIGN="LEFT">besoin_jardin</TD></TR>
+    <TR><TD ALIGN="LEFT">description</TD></TR>
+    <TR><TD ALIGN="LEFT">photo</TD></TR>
+    <TR><TD ALIGN="LEFT">statut</TD></TR>
+    <TR><TD ALIGN="LEFT">coup_de_coeur</TD></TR>
+    <TR><TD ALIGN="LEFT">date_arrivee</TD></TR></TABLE>>];
+
+  DEMANDE [pos="691,86!", shape=plain, label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#B5502F">
+    <TR><TD BGCOLOR="#B5502F"><FONT COLOR="white"><B>DEMANDE_ADOPTION</B></FONT></TD></TR>
+    <TR><TD ALIGN="LEFT"><U>id_demande</U></TD></TR>
+    <TR><TD ALIGN="LEFT">message</TD></TR>
+    <TR><TD ALIGN="LEFT">score_compatibilite</TD></TR>
+    <TR><TD ALIGN="LEFT">statut</TD></TR>
+    <TR><TD ALIGN="LEFT">date_creation</TD></TR>
+    <TR><TD ALIGN="LEFT">date_maj</TD></TR></TABLE>>];
+
+  UTILISATEUR [pos="345,86!", shape=plain, label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#B5502F">
+    <TR><TD BGCOLOR="#B5502F"><FONT COLOR="white"><B>UTILISATEUR</B></FONT></TD></TR>
+    <TR><TD ALIGN="LEFT"><U>id_utilisateur</U></TD></TR>
+    <TR><TD ALIGN="LEFT">email</TD></TR>
+    <TR><TD ALIGN="LEFT">mot_de_passe_hash</TD></TR>
+    <TR><TD ALIGN="LEFT">prenom</TD></TR>
+    <TR><TD ALIGN="LEFT">nom</TD></TR>
+    <TR><TD ALIGN="LEFT">role</TD></TR>
+    <TR><TD ALIGN="LEFT">date_creation</TD></TR></TABLE>>];
+
+  PROFIL [pos="0,86!", shape=plain, label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#B5502F">
+    <TR><TD BGCOLOR="#B5502F"><FONT COLOR="white"><B>PROFIL_ADOPTANT</B></FONT></TD></TR>
+    <TR><TD ALIGN="LEFT">logement</TD></TR>
+    <TR><TD ALIGN="LEFT">a_enfants</TD></TR>
+    <TR><TD ALIGN="LEFT">a_chien</TD></TR>
+    <TR><TD ALIGN="LEFT">a_chat</TD></TR>
+    <TR><TD ALIGN="LEFT">temps_disponible</TD></TR>
+    <TR><TD ALIGN="LEFT">date_maj</TD></TR></TABLE>>];
+
+  node [shape=ellipse, style=filled, fillcolor="#E8F0E9", color="#7A9E7E", fontcolor="#2E2A26"];
+  appartenir [pos="158,561!", label="appartenir"];
+  etre_de    [pos="489,561!", label="être de"];
+  concerner  [pos="691,252!", label="concerner"];
+  deposer    [pos="518,86!", label="déposer"];
+  posseder   [pos="172,86!", label="posséder"];
+
+  ESPECE -- appartenir [label="0,n"];
+  appartenir -- RACE   [label="1,1"];
+  RACE -- etre_de      [label="0,n"];
+  etre_de -- ANIMAL    [label="1,1"];
+  ANIMAL -- concerner  [label="0,n"];
+  concerner -- DEMANDE [label="1,1"];
+  DEMANDE -- deposer   [label="1,1"];
+  deposer -- UTILISATEUR [label="0,n"];
+  UTILISATEUR -- posseder [label="0,1"];
+  posseder -- PROFIL   [label="1,1"];
+}

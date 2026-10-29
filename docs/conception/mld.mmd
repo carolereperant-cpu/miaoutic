@@ -1,0 +1,63 @@
+erDiagram
+    espece ||--o{ race : "id_espece"
+    race ||--o{ animal : "id_race"
+    animal ||--o{ demande_adoption : "id_animal"
+    utilisateur ||--o{ demande_adoption : "id_utilisateur"
+    utilisateur ||--o| profil_adoptant : "id_utilisateur"
+
+    espece {
+        INT id_espece PK
+        VARCHAR(50) nom_espece UK
+    }
+    race {
+        INT id_race PK
+        VARCHAR(100) nom_race "UK avec id_espece"
+        INT id_espece FK
+    }
+    animal {
+        INT id_animal PK
+        VARCHAR(50) nom
+        ENUM sexe "male, femelle"
+        DATE date_naissance
+        ENUM taille "petit, moyen, grand"
+        ENUM energie "calme, modere, energique"
+        BOOLEAN ok_enfants
+        BOOLEAN ok_chiens
+        BOOLEAN ok_chats
+        BOOLEAN besoin_jardin
+        TEXT description
+        VARCHAR(255) photo "NULL"
+        ENUM statut "disponible, reserve, adopte"
+        BOOLEAN coup_de_coeur
+        DATE date_arrivee
+        INT id_race FK
+    }
+    utilisateur {
+        INT id_utilisateur PK
+        VARCHAR(255) email UK
+        CHAR(60) mot_de_passe_hash
+        VARCHAR(100) prenom
+        VARCHAR(100) nom
+        ENUM role "adoptant, refuge"
+        DATETIME date_creation
+    }
+    profil_adoptant {
+        INT id_utilisateur PK, FK
+        ENUM logement
+        BOOLEAN a_enfants
+        BOOLEAN a_chien
+        BOOLEAN a_chat
+        ENUM temps_disponible "faible, moyen, eleve"
+        DATETIME date_maj
+    }
+    demande_adoption {
+        INT id_demande PK
+        INT id_utilisateur FK
+        INT id_animal FK
+        TEXT message
+        TINYINT score_compatibilite "0 a 100"
+        ENUM statut "recue, en_etude, acceptee, refusee, annulee"
+        DATETIME date_creation
+        DATETIME date_maj
+        TINYINT est_active "colonne calculee, UK"
+    }
