@@ -27,6 +27,33 @@ const JOINS = `
   JOIN race r   ON r.id_race = a.id_race
   JOIN espece e ON e.id_espece = r.id_espece`;
 
+// Columns the shelter can write, with the matching field of the
+// request body (database: snake_case, JavaScript: camelCase)
+const WRITABLE_FIELDS = [
+  ['nom', 'nom'],
+  ['sexe', 'sexe'],
+  ['date_naissance', 'dateNaissance'],
+  ['taille', 'taille'],
+  ['energie', 'energie'],
+  ['ok_enfants', 'okEnfants'],
+  ['ok_chiens', 'okChiens'],
+  ['ok_chats', 'okChats'],
+  ['besoin_jardin', 'besoinJardin'],
+  ['description', 'description'],
+  ['sterilise', 'sterilise'],
+  ['identification', 'identification'],
+  ['remarques_sante', 'remarquesSante'],
+  ['photo', 'photo'],
+  ['coup_de_coeur', 'coupDeCoeur'],
+  ['date_arrivee', 'dateArrivee'],
+  ['id_race', 'idRace'],
+];
+
+/** Values of the body in the order of WRITABLE_FIELDS (missing = NULL) */
+function toValues(data) {
+  return WRITABLE_FIELDS.map(([, field]) => data[field] ?? null);
+}
+
 /**
  * Escapes the LIKE wildcards (% and _) typed by the user, so that
  * searching "a_b" looks for the text "a_b" and not "a" + any char + "b".
@@ -147,6 +174,83 @@ class AnimalModel {
    */
   static async updateStatut(id, statut, db = pool) {
     await db.execute('UPDATE animal SET statut = ? WHERE id_animal = ?', [statut, id]);
+  }
+
+  // ----------------------------------------------------------
+  // Shelter management
+  // ----------------------------------------------------------
+
+  /**
+   * Every animal (adopted ones included) with its number of active
+   * requests, for the shelter dashboard.
+   * @returns {Promise<object[]>}
+   */
+  static async findAllForShelter() {
+    const sql = `
+      SELECT ${CARD_COLUMNS}, a.coup_de_coeur, a.date_arrivee,
+             (SELECT COUNT(*) FROM demande_adoption d
+              WHERE d.id_animal = a.id_animal AND d.statut IN ('recue', 'en_etude')) AS nb_demandes_actives
+      ${JOINS}
+      ORDER BY a.statut, a.nom`;
+
+    const [rows] = await pool.execute(sql);
+    return rows;
+  }
+
+  /**
+   * @param {object} data - validated body (camelCase fields)
+   * @param {object} [db] - pool or transaction connection
+   * @returns {Promise<number>} id of the new animal
+   */
+  static async create(data, db = pool) {
+    const columns = WRITABLE_FIELDS.map(([column]) => column).join(', ');
+    const placeholders = WRITABLE_FIELDS.map(() => '?').join(', ');
+    const sql = `INSERT INTO animal (${columns}) VALUES (${placeholders})`;
+
+    const [result] = await db.execute(sql, toValues(data));
+    return result.insertId;
+  }
+
+  /**
+   * Replaces every editable column of an animal (not its status).
+   * @param {number} id
+   * @param {object} data - validated body (camelCase fields)
+   */
+  static async update(id, data, db = pool) {
+    const assignments = WRITABLE_FIELDS.map(([column]) => `${column} = ?`).join(', ');
+    const sql = `UPDATE animal SET ${assignments} WHERE id_animal = ?`;
+
+    await db.execute(sql, [...toValues(data), id]);
+  }
+
+  /**
+   * Deletes an animal (its vaccinations are deleted by the
+   * ON DELETE CASCADE of the vaccination table).
+   * @returns {Promise<boolean>} false if the animal did not exist
+   * @throws ER_ROW_IS_REFERENCED_2 if adoption requests point to it
+   */
+  static async deleteById(id) {
+    const [result] = await pool.execute('DELETE FROM animal WHERE id_animal = ?', [id]);
+    return result.affectedRows > 0;
+  }
+
+  /**
+   * Replaces all the vaccinations of an animal: delete, then insert
+   * the new list. Must run inside a transaction, so that a failure
+   * never leaves the animal without its vaccinations.
+   * @param {number} idAnimal
+   * @param {{ idVaccin: number, date: string }[]} vaccinations
+   * @param {object} connection - connection of the current transaction
+   */
+  static async replaceVaccinations(idAnimal, vaccinations, connection) {
+    await connection.execute('DELETE FROM vaccination WHERE id_animal = ?', [idAnimal]);
+
+    for (const { idVaccin, date } of vaccinations) {
+      await connection.execute(
+        'INSERT INTO vaccination (id_animal, id_vaccin, date_vaccination) VALUES (?, ?, ?)',
+        [idAnimal, idVaccin, date],
+      );
+    }
   }
 
   /**

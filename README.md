@@ -120,6 +120,8 @@ api/
 | GET | `/api/animaux` | Animaux disponibles ou réservés. Filtres : `espece` (id), `taille` (`petit`, `moyen`, `grand`), `nom` |
 | GET | `/api/animaux/coups-de-coeur` | Les 3 coups de cœur de la page d'accueil |
 | GET | `/api/animaux/:id` | Fiche complète d'un animal, avec son âge et ses vaccinations |
+| GET | `/api/races` | Races avec leur espèce (formulaires) |
+| GET | `/api/vaccins` | Liste des vaccins (formulaires) |
 | POST | `/api/auth/inscription` | Création d'un compte adoptant (`email`, `motDePasse`, `prenom`, `nom`) |
 | POST | `/api/auth/connexion` | Connexion (`email`, `motDePasse`) : renvoie un jeton JWT valable 2 h |
 | GET | `/api/auth/moi` | Compte de l'utilisateur connecté (en-tête `Authorization: Bearer <jeton>`) |
@@ -142,6 +144,11 @@ Routes réservées au **refuge** :
 |---|---|---|
 | GET | `/api/demandes` | Toutes les demandes (filtre `statut`) |
 | PATCH | `/api/demandes/:id/statut` | Changement de statut (`en_etude`, `acceptee`, `refusee`). Une acceptation adopte l'animal et refuse les autres demandes, dans une seule transaction |
+| GET | `/api/animaux/gestion` | Tous les animaux, adoptés compris, avec leur nombre de demandes en cours |
+| POST | `/api/animaux` | Ajout d'un animal et de ses vaccinations (une seule transaction) |
+| PUT | `/api/animaux/:id` | Modification d'un animal ; ses vaccinations sont remplacées si la liste `vaccinations` est fournie |
+| PATCH | `/api/animaux/:id/statut` | Animal `disponible` ou `reserve` (l'adoption passe par une demande acceptée) |
+| DELETE | `/api/animaux/:id` | Suppression d'un animal qui n'a jamais reçu de demande |
 
 ### Sécurité de l'authentification
 
