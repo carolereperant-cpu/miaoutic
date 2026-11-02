@@ -3,7 +3,7 @@
 // Right column of the animal sheet: what the visitor can do.
 //   - animal not available   -> information message
 //   - visitor not logged in  -> log in / create an account
-//   - shelter staff          -> information
+//   - shelter staff          -> links to edit the animal / see the requests
 //   - adopter                -> % of match and request (AdopterPanel)
 // ============================================================
 
@@ -37,7 +37,15 @@ export default function AdoptionPanel({ animal }) {
       </>
     );
   } else if (user.role === 'refuge') {
-    content = <p className="mb-0">Vous êtes connecté avec un compte du refuge.</p>;
+    content = (
+      <>
+        <p>Vous êtes connecté avec un compte du refuge.</p>
+        <div className="d-flex flex-wrap gap-2">
+          <Link to={`/refuge/animaux/${animal.id_animal}/modifier`} className="btn btn-primary">Modifier la fiche</Link>
+          <Link to="/refuge/demandes" className="btn btn-outline-primary">Voir les demandes</Link>
+        </div>
+      </>
+    );
   } else {
     content = <AdopterPanel animal={animal} />;
   }

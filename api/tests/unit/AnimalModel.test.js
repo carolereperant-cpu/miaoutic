@@ -53,3 +53,12 @@ describe('AnimalModel.findById', () => {
     expect(pool.execute.mock.calls[0][1]).toEqual([1]);
   });
 });
+
+describe('AnimalModel.findVaccinations', () => {
+  test('returns the id of the vaccine (needed to edit the animal)', async () => {
+    await AnimalModel.findVaccinations(1);
+    const [sql, params] = pool.execute.mock.calls[0];
+    expect(sql).toContain('v.id_vaccin');
+    expect(params).toEqual([1]);
+  });
+});

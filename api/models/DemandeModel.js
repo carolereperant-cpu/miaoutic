@@ -87,7 +87,7 @@ class DemandeModel {
     }
 
     const sql = `
-      SELECT d.id_demande, d.id_animal, d.score_compatibilite, d.statut, d.date_creation, d.date_maj,
+      SELECT d.id_demande, d.id_animal, d.message, d.score_compatibilite, d.statut, d.date_creation, d.date_maj,
              a.nom AS nom_animal, a.statut AS statut_animal,
              u.id_utilisateur, u.prenom, u.nom, u.email
       FROM demande_adoption d

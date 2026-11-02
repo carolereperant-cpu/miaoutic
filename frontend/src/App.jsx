@@ -16,6 +16,9 @@ import Inscription from './pages/Inscription';
 import MonQuestionnaire from './pages/MonQuestionnaire';
 import MesMatchs from './pages/MesMatchs';
 import MesDemandes from './pages/MesDemandes';
+import TableauDeBord from './pages/refuge/TableauDeBord';
+import FormulaireAnimal from './pages/refuge/FormulaireAnimal';
+import DemandesRefuge from './pages/refuge/DemandesRefuge';
 import ProtectedRoute from './components/ProtectedRoute';
 import MentionsLegales from './pages/legal/MentionsLegales';
 import DonneesPersonnelles from './pages/legal/DonneesPersonnelles';
@@ -48,6 +51,12 @@ export default function App() {
               <Route path="/mon-questionnaire" element={<ProtectedRoute role="adoptant"><MonQuestionnaire /></ProtectedRoute>} />
               <Route path="/mes-matchs" element={<ProtectedRoute role="adoptant"><MesMatchs /></ProtectedRoute>} />
               <Route path="/mes-demandes" element={<ProtectedRoute role="adoptant"><MesDemandes /></ProtectedRoute>} />
+
+              {/* Shelter space */}
+              <Route path="/refuge" element={<ProtectedRoute role="refuge"><TableauDeBord /></ProtectedRoute>} />
+              <Route path="/refuge/animaux/nouveau" element={<ProtectedRoute role="refuge"><FormulaireAnimal /></ProtectedRoute>} />
+              <Route path="/refuge/animaux/:id/modifier" element={<ProtectedRoute role="refuge"><FormulaireAnimal /></ProtectedRoute>} />
+              <Route path="/refuge/demandes" element={<ProtectedRoute role="refuge"><DemandesRefuge /></ProtectedRoute>} />
 
               <Route path="/mentions-legales" element={<MentionsLegales />} />
               <Route path="/donnees-personnelles" element={<DonneesPersonnelles />} />

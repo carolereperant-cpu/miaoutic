@@ -256,11 +256,11 @@ class AnimalModel {
   /**
    * Vaccinations of one animal, most recent first.
    * @param {number} idAnimal
-   * @returns {Promise<{nom_vaccin: string, date_vaccination: string}[]>}
+   * @returns {Promise<{id_vaccin: number, nom_vaccin: string, date_vaccination: string}[]>}
    */
   static async findVaccinations(idAnimal) {
     const sql = `
-      SELECT v.nom_vaccin, vn.date_vaccination
+      SELECT v.id_vaccin, v.nom_vaccin, vn.date_vaccination
       FROM vaccination vn
       JOIN vaccin v ON v.id_vaccin = vn.id_vaccin
       WHERE vn.id_animal = ?

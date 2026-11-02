@@ -702,6 +702,7 @@ components:
               items:
                 type: object
                 properties:
+                  id_vaccin: { type: integer, example: 3 }
                   nom_vaccin: { type: string, example: Typhus-Coryza }
                   date_vaccination: { type: string, format: date, example: '2026-06-03' }
 

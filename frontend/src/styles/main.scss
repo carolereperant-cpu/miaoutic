@@ -108,7 +108,8 @@ textarea:focus-visible {
 
 // The main content receives the focus after a page change (see
 // PageChange.jsx): no outline around the whole page
-#contenu:focus {
+#contenu:focus,
+.focus-target:focus {
   outline: none;
 }
 
@@ -388,6 +389,15 @@ $match-low-text: #7A2E17;
   padding: 1rem 1.25rem;
 }
 
+// Message written by the adopter (spaces and line breaks kept)
+.request-message {
+  background: $color-cream;
+  border-left: 4px solid $color-sage;
+  border-radius: $border-radius;
+  padding: 0.75rem 1rem;
+  white-space: pre-line;
+}
+
 // ------------------------------------------------------------
 // QUESTIONNAIRE
 // ------------------------------------------------------------
@@ -548,6 +558,23 @@ $match-low-text: #7A2E17;
 }
 
 // ------------------------------------------------------------
+// SHELTER SPACE
+// ------------------------------------------------------------
+// The table is wider than a phone: it scrolls inside its box
+// (.table-responsive). position: relative keeps the hidden texts
+// of the buttons (.visually-hidden, absolutely positioned) inside
+// this box, otherwise they would widen the whole page.
+.table-responsive {
+  position: relative;
+}
+
+.refuge-table {
+  min-width: 720px;
+
+  th { white-space: nowrap; }
+}
+
+// ------------------------------------------------------------
 // 404 PAGE
 // ------------------------------------------------------------
 .not-found {
@@ -569,7 +596,12 @@ $match-low-text: #7A2E17;
 // ------------------------------------------------------------
 // UTILITIES
 // ------------------------------------------------------------
-.section { padding: 4rem 0; }
+// Vertical spacing only: the side padding of .container must stay
+// (without it, the text touches the edges of a phone screen)
+.section {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
 
 .section-title {
   font-size: 1.75rem;

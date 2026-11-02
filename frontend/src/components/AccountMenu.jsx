@@ -15,7 +15,11 @@ const LINKS = {
     { to: '/mes-demandes', label: 'Mes demandes' },
     { to: '/mon-questionnaire', label: 'Mon questionnaire' },
   ],
-  refuge: [],
+  refuge: [
+    { to: '/refuge', label: 'Tableau de bord' },
+    { to: '/refuge/demandes', label: 'Demandes d\'adoption' },
+    { to: '/refuge/animaux/nouveau', label: 'Ajouter un animal' },
+  ],
 };
 
 export default function AccountMenu() {

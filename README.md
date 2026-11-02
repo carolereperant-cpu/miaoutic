@@ -203,6 +203,28 @@ frontend/src/
 └── styles/main.scss    Charte graphique (Bootstrap personnalisé avec Sass)
 ```
 
+### Pages
+
+| Adresse | Page | Accès |
+|---|---|---|
+| `/` | Accueil, coups de cœur du mois | Tout le monde |
+| `/animaux`, `/animaux/chiens`… | Liste des animaux, filtre par taille | Tout le monde |
+| `/animal/:id` | Fiche d'un animal | Tout le monde |
+| `/connexion`, `/inscription` | Connexion, création de compte adoptant | Tout le monde |
+| `/mon-questionnaire` | Questionnaire de compatibilité | Adoptant |
+| `/mes-matchs` | Animaux classés par % de compatibilité | Adoptant |
+| `/mes-demandes` | Suivi et annulation des demandes | Adoptant |
+| `/refuge` | Tableau de bord : tous les animaux, réserver, supprimer | Refuge |
+| `/refuge/animaux/nouveau` | Ajout d'un animal et de ses vaccinations | Refuge |
+| `/refuge/animaux/:id/modifier` | Modification d'un animal | Refuge |
+| `/refuge/demandes` | Étude, acceptation ou refus des demandes | Refuge |
+| `/mentions-legales`, `/donnees-personnelles`, `/accessibilite`, `/cookies` | Pages légales | Tout le monde |
+
+Les pages « Adoptant » et « Refuge » sont masquées aux autres visiteurs (`ProtectedRoute`), mais la vraie
+protection reste l'API, qui vérifie le jeton et le rôle à chaque requête.
+
+Captures d'écran : dossier [`docs/captures`](docs/captures).
+
 ### Choix techniques
 
 - **Même gabarit que le projet « Trouve ton artisan »** : en-tête collant, bannière, cartes, fiche en deux colonnes, pied de page en trois colonnes.
@@ -210,7 +232,9 @@ frontend/src/
 - **Polices hébergées avec le site** (Fredoka pour les titres, Nunito pour le texte) : aucune requête vers Google Fonts (vie privée, performance).
 - **Bootstrap importé partiellement** : seuls les modules utilisés sont compilés (éco-conception).
 - **Jeton de connexion dans le `sessionStorage`** : effacé à la fermeture de l'onglet ; un jeton refusé par l'API déconnecte l'utilisateur.
-- **Accessibilité** : lien « Aller au contenu », focus visible, champs reliés à leurs messages d'erreur, focus placé sur le contenu à chaque changement de page. Audit automatique axe-core : aucune violation WCAG 2.1 A/AA sur les pages publiques.
+- **Accessibilité** : lien « Aller au contenu », focus visible, champs reliés à leurs messages d'erreur, focus placé sur le contenu à chaque changement de page. Audit automatique axe-core : aucune violation WCAG 2.1 A/AA sur les pages publiques, l'espace adoptant et l'espace refuge (ordinateur et mobile).
+- **Actions irréversibles confirmées dans la page** (supprimer un animal, accepter une adoption) : pas de fenêtre `confirm()` du navigateur, le focus clavier va sur le bouton de confirmation (`ConfirmAction`).
+- **Formulaire animal** : les règles de l'API (dates, URL https, vaccinations) sont vérifiées aussi dans le navigateur pour aider la saisie ; l'API les vérifie de nouveau, c'est elle qui protège les données.
 
 ## Statut
 
