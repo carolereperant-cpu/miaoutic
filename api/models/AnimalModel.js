@@ -16,6 +16,11 @@ const CARD_COLUMNS = `
   a.id_animal, a.nom, a.sexe, a.date_naissance, a.taille, a.photo, a.statut,
   r.nom_race, e.id_espece, e.nom_espece`;
 
+// Columns used by the compatibility score (with a.taille, already
+// in CARD_COLUMNS)
+const CRITERIA_COLUMNS = `
+  a.energie, a.ok_enfants, a.ok_chiens, a.ok_chats, a.besoin_jardin`;
+
 // Joins shared by every query on animals
 const JOINS = `
   FROM animal a
@@ -98,6 +103,50 @@ class AnimalModel {
 
     const [rows] = await pool.execute(sql, [id]);
     return rows[0] ?? null;
+  }
+
+  /**
+   * Available animals with the criteria used by the compatibility
+   * score, for the "Mes matchs" page.
+   * @returns {Promise<object[]>}
+   */
+  static async findDisponiblesWithCriteria() {
+    const sql = `
+      SELECT ${CARD_COLUMNS}, ${CRITERIA_COLUMNS}
+      ${JOINS}
+      WHERE a.statut = 'disponible'`;
+
+    const [rows] = await pool.execute(sql);
+    return rows;
+  }
+
+  /**
+   * Reads an animal and LOCKS its row until the end of the
+   * transaction (SELECT ... FOR UPDATE). Another transaction that
+   * wants the same animal waits: two shelter members cannot accept
+   * two adoptions of the same animal at the same time.
+   * @param {number} id
+   * @param {object} connection - connection of the current transaction
+   * @returns {Promise<object|null>}
+   */
+  static async findForUpdate(id, connection) {
+    const sql = `
+      SELECT a.id_animal, a.nom, a.statut, a.taille, ${CRITERIA_COLUMNS}
+      FROM animal a
+      WHERE a.id_animal = ?
+      FOR UPDATE`;
+
+    const [rows] = await connection.execute(sql, [id]);
+    return rows[0] ?? null;
+  }
+
+  /**
+   * @param {number} id
+   * @param {'disponible'|'reserve'|'adopte'} statut
+   * @param {object} [db] - pool or transaction connection
+   */
+  static async updateStatut(id, statut, db = pool) {
+    await db.execute('UPDATE animal SET statut = ? WHERE id_animal = ?', [statut, id]);
   }
 
   /**

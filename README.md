@@ -66,6 +66,8 @@ Environnement de test uniquement. Mot de passe commun : `Miaoutic#2026`
 
 Dans `docs/conception/` : MCD, MLD et règles du score de compatibilité.
 
+Dans `docs/tests/` : jeu d'essai de la demande d'adoption (données en entrée, attendues, obtenues).
+
 ## API
 
 ### Installation
@@ -121,6 +123,25 @@ api/
 | POST | `/api/auth/inscription` | Création d'un compte adoptant (`email`, `motDePasse`, `prenom`, `nom`) |
 | POST | `/api/auth/connexion` | Connexion (`email`, `motDePasse`) : renvoie un jeton JWT valable 2 h |
 | GET | `/api/auth/moi` | Compte de l'utilisateur connecté (en-tête `Authorization: Bearer <jeton>`) |
+
+Routes réservées aux **adoptants** :
+
+| Méthode | Route | Description |
+|---|---|---|
+| GET | `/api/profil` | Questionnaire de l'adoptant |
+| PUT | `/api/profil` | Création ou modification du questionnaire (`logement`, `aEnfants`, `aChien`, `aChat`, `tempsDisponible`) |
+| GET | `/api/profil/matchs` | Animaux disponibles triés par score de compatibilité |
+| GET | `/api/profil/compatibilite/:idAnimal` | Score détaillé avec un animal |
+| POST | `/api/demandes` | Demande d'adoption (`idAnimal`, `message`) |
+| GET | `/api/demandes/mes-demandes` | Demandes de l'adoptant |
+| PATCH | `/api/demandes/:id/annulation` | Annulation d'une demande en cours |
+
+Routes réservées au **refuge** :
+
+| Méthode | Route | Description |
+|---|---|---|
+| GET | `/api/demandes` | Toutes les demandes (filtre `statut`) |
+| PATCH | `/api/demandes/:id/statut` | Changement de statut (`en_etude`, `acceptee`, `refusee`). Une acceptation adopte l'animal et refuse les autres demandes, dans une seule transaction |
 
 ### Sécurité de l'authentification
 

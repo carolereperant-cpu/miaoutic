@@ -8,6 +8,8 @@ const { health } = require('../controllers/healthController');
 const animalRoutes = require('./animalRoutes');
 const especeRoutes = require('./especeRoutes');
 const authRoutes = require('./authRoutes');
+const profilRoutes = require('./profilRoutes');
+const demandeRoutes = require('./demandeRoutes');
 
 const router = Router();
 
@@ -15,5 +17,7 @@ router.get('/health', health);
 router.use('/animaux', animalRoutes);
 router.use('/especes', especeRoutes);
 router.use('/auth', authRoutes);
+router.use('/profil', profilRoutes);
+router.use('/demandes', demandeRoutes);
 
 module.exports = router;
