@@ -107,9 +107,20 @@ api/
 ├── controllers/        Reçoit la requête, appelle le service, renvoie la réponse
 ├── services/           Règles métier (classes)
 ├── models/             Accès aux données : requêtes SQL préparées
-├── utils/              Outils partagés (calcul de l'âge, erreurs HTTP)
+├── utils/              Outils partagés (calcul de l'âge, erreurs HTTP, transactions)
+├── docs/               Documentation OpenAPI (Swagger)
 └── tests/              Tests unitaires, tests de sécurité et tests des routes
 ```
+
+### Documentation interactive (Swagger)
+
+Une fois l'API démarrée, la documentation de toutes les routes est disponible sur
+**http://localhost:3000/api/docs**. Elle permet de tester chaque route directement depuis le navigateur
+(bouton **Try it out**). Pour les routes protégées : se connecter avec `POST /auth/connexion`, copier le
+jeton reçu et le coller dans **Authorize**.
+
+La documentation est écrite dans `api/docs/openapi.yaml`. Un test automatique vérifie qu'elle respecte
+le standard OpenAPI et que chaque route documentée existe bien dans l'API.
 
 ### Routes disponibles
 

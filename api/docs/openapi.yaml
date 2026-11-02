@@ -1,0 +1,810 @@
+openapi: 3.0.3
+
+info:
+  title: API Miaoutic
+  version: 1.0.0
+  description: |
+    API REST de **Miaoutic**, application d'adoption d'animaux pour un refuge associatif.
+
+    **Authentification** : se connecter avec `POST /auth/connexion`, copier le `token` reçu,
+    cliquer sur **Authorize** (en haut à droite) et le coller. Le jeton est valable 2 heures.
+
+    Comptes de test (environnement de développement uniquement), mot de passe `Miaoutic#2026` :
+    - refuge : `refuge@miaoutic.test`
+    - adoptant : `lea.dubois@miaoutic.test`
+
+    Toutes les erreurs ont la même forme : `{ "message": "..." }`, avec en plus la liste
+    `erreurs` quand des champs sont invalides (code 400).
+
+servers:
+  - url: http://localhost:3000/api
+    description: Développement local
+
+tags:
+  - name: Santé
+    description: État de l'API
+  - name: Animaux
+    description: Consultation publique des animaux
+  - name: Référentiels
+    description: Listes utilisées par les formulaires
+  - name: Authentification
+    description: Inscription, connexion, compte connecté
+  - name: Profil
+    description: Questionnaire et compatibilité (adoptants)
+  - name: Demandes
+    description: Demandes d'adoption
+  - name: Gestion du refuge
+    description: Gestion des animaux (refuge)
+
+paths:
+  # ------------------------------------------------------------
+  # Santé
+  # ------------------------------------------------------------
+  /health:
+    get:
+      tags: [Santé]
+      summary: État de l'API et de la base de données
+      responses:
+        '200':
+          description: L'API et la base répondent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  api: { type: string, example: ok }
+                  database: { type: string, example: ok }
+        '503':
+          description: La base de données ne répond pas
+
+  # ------------------------------------------------------------
+  # Animaux (public)
+  # ------------------------------------------------------------
+  /animaux:
+    get:
+      tags: [Animaux]
+      summary: Liste publique des animaux
+      description: Animaux disponibles puis réservés. Les animaux adoptés ne sont pas affichés.
+      parameters:
+        - name: espece
+          in: query
+          description: Identifiant de l'espèce
+          schema: { type: integer, minimum: 1 }
+        - name: taille
+          in: query
+          schema: { $ref: '#/components/schemas/Taille' }
+        - name: nom
+          in: query
+          description: Partie du nom (1 à 50 caractères)
+          schema: { type: string, minLength: 1, maxLength: 50 }
+      responses:
+        '200':
+          description: Liste des animaux
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AnimalCarte' }
+        '400': { $ref: '#/components/responses/DonneesInvalides' }
+    post:
+      tags: [Gestion du refuge]
+      summary: Ajouter un animal
+      description: L'animal et ses vaccinations sont enregistrés dans une seule transaction.
+      security: [{ jwt: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AnimalSaisie' }
+      responses:
+        '201':
+          description: Animal créé
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AnimalFiche' }
+        '400': { $ref: '#/components/responses/DonneesInvalides' }
+        '401': { $ref: '#/components/responses/NonAuthentifie' }
+        '403': { $ref: '#/components/responses/AccesRefuse' }
+
+  /animaux/coups-de-coeur:
+    get:
+      tags: [Animaux]
+      summary: Les 3 coups de cœur de la page d'accueil
+      responses:
+        '200':
+          description: Jusqu'à 3 animaux disponibles
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 3
+                items: { $ref: '#/components/schemas/AnimalCarte' }
+
+  /animaux/gestion:
+    get:
+      tags: [Gestion du refuge]
+      summary: Tableau de bord du refuge
+      description: Tous les animaux, adoptés compris, avec leur nombre de demandes en cours.
+      security: [{ jwt: [] }]
+      responses:
+        '200':
+          description: Liste complète
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/AnimalCarte'
+                    - type: object
+                      properties:
+                        coup_de_coeur: { type: boolean }
+                        date_arrivee: { type: string, format: date }
+                        nb_demandes_actives: { type: integer, example: 2 }
+        '401': { $ref: '#/components/responses/NonAuthentifie' }
+        '403': { $ref: '#/components/responses/AccesRefuse' }
+
+  /animaux/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdAnimal'
+    get:
+      tags: [Animaux]
+      summary: Fiche complète d'un animal
+      responses:
+        '200':
+          description: Fiche de l'animal
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AnimalFiche' }
+        '400': { $ref: '#/components/responses/DonneesInvalides' }
+        '404': { $ref: '#/components/responses/Introuvable' }
+    put:
+      tags: [Gestion du refuge]
+      summary: Modifier un animal
+      description: |
+        Remplace toutes les informations de l'animal (sauf son statut).
+        Les vaccinations sont remplacées seulement si la liste `vaccinations` est envoyée.
+        En cas d'erreur, rien n'est modifié (transaction).
+      security: [{ jwt: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AnimalSaisie' }
+      responses:
+        '200':
+          description: Animal modifié
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AnimalFiche' }
+        '400': { $ref: '#/components/responses/DonneesInvalides' }
+        '401': { $ref: '#/components/responses/NonAuthentifie' }
+        '403': { $ref: '#/components/responses/AccesRefuse' }
+        '404': { $ref: '#/components/responses/Introuvable' }
+    delete:
+      tags: [Gestion du refuge]
+      summary: Supprimer un animal
+      description: Impossible si l'animal a déjà reçu des demandes d'adoption (changer plutôt son statut).
+      security: [{ jwt: [] }]
+      responses:
+        '204':
+          description: Animal supprimé
+        '401': { $ref: '#/components/responses/NonAuthentifie' }
+        '403': { $ref: '#/components/responses/AccesRefuse' }
+        '404': { $ref: '#/components/responses/Introuvable' }
+        '409': { $ref: '#/components/responses/Conflit' }
+
+  /animaux/{id}/statut:
+    parameters:
+      - $ref: '#/components/parameters/IdAnimal'
+    patch:
+      tags: [Gestion du refuge]
+      summary: Rendre un animal disponible ou le réserver
+      description: Le statut « adopté » s'obtient uniquement en acceptant une demande.
+      security: [{ jwt: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [statut]
+              properties:
+                statut: { type: string, enum: [disponible, reserve] }
+      responses:
+        '200':
+          description: Statut modifié
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AnimalFiche' }
+        '400': { $ref: '#/components/responses/DonneesInvalides' }
+        '401': { $ref: '#/components/responses/NonAuthentifie' }
+        '403': { $ref: '#/components/responses/AccesRefuse' }
+        '404': { $ref: '#/components/responses/Introuvable' }
+        '409': { $ref: '#/components/responses/Conflit' }
+
+  # ------------------------------------------------------------
+  # Référentiels
+  # ------------------------------------------------------------
+  /especes:
+    get:
+      tags: [Référentiels]
+      summary: Espèces avec le nombre d'animaux disponibles
+      responses:
+        '200':
+          description: Liste des espèces
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id_espece: { type: integer, example: 2 }
+                    nom_espece: { type: string, example: Chats }
+                    nb_disponibles: { type: integer, example: 4 }
+
+  /races:
+    get:
+      tags: [Référentiels]
+      summary: Races avec leur espèce
+      responses:
+        '200':
+          description: Liste des races
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id_race: { type: integer, example: 7 }
+                    nom_race: { type: string, example: Européen }
+                    id_espece: { type: integer, example: 2 }
+                    nom_espece: { type: string, example: Chats }
+
+  /vaccins:
+    get:
+      tags: [Référentiels]
+      summary: Liste des vaccins
+      responses:
+        '200':
+          description: Liste des vaccins
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id_vaccin: { type: integer, example: 3 }
+                    nom_vaccin: { type: string, example: Typhus-Coryza }
+
+  # ------------------------------------------------------------
+  # Authentification
+  # ------------------------------------------------------------
+  /auth/inscription:
+    post:
+      tags: [Authentification]
+      summary: Créer un compte adoptant
+      description: |
+        Le rôle est toujours « adoptant ». Mot de passe : au moins 12 caractères avec une majuscule,
+        une minuscule, un chiffre et un caractère spécial (recommandation CNIL).
+        Bloqué 15 minutes après 10 tentatives échouées.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, motDePasse, prenom, nom]
+              properties:
+                email: { type: string, format: email, example: camille.petit@miaoutic.test }
+                motDePasse: { type: string, format: password, minLength: 12, example: 'Chaton#Roux2026' }
+                prenom: { type: string, maxLength: 100, example: Camille }
+                nom: { type: string, maxLength: 100, example: Petit }
+      responses:
+        '201':
+          description: Compte créé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  utilisateur: { $ref: '#/components/schemas/Utilisateur' }
+        '400': { $ref: '#/components/responses/DonneesInvalides' }
+        '409': { $ref: '#/components/responses/Conflit' }
+        '429': { $ref: '#/components/responses/TropDeTentatives' }
+
+  /auth/connexion:
+    post:
+      tags: [Authentification]
+      summary: Se connecter et recevoir un jeton
+      description: Même message d'erreur que l'email existe ou non. Bloqué 15 minutes après 10 tentatives échouées.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, motDePasse]
+              properties:
+                email: { type: string, format: email, example: lea.dubois@miaoutic.test }
+                motDePasse: { type: string, format: password, example: 'Miaoutic#2026' }
+      responses:
+        '200':
+          description: Connexion réussie
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string, description: Jeton JWT valable 2 heures }
+                  utilisateur: { $ref: '#/components/schemas/Utilisateur' }
+        '400': { $ref: '#/components/responses/DonneesInvalides' }
+        '401':
+          description: Email ou mot de passe incorrect
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Erreur' }
+        '429': { $ref: '#/components/responses/TropDeTentatives' }
+
+  /auth/moi:
+    get:
+      tags: [Authentification]
+      summary: Compte de l'utilisateur connecté
+      security: [{ jwt: [] }]
+      responses:
+        '200':
+          description: Compte
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Utilisateur' }
+        '401': { $ref: '#/components/responses/NonAuthentifie' }
+        '404': { $ref: '#/components/responses/Introuvable' }
+
+  # ------------------------------------------------------------
+  # Profil (adoptants)
+  # ------------------------------------------------------------
+  /profil:
+    get:
+      tags: [Profil]
+      summary: Questionnaire de l'adoptant connecté
+      security: [{ jwt: [] }]
+      responses:
+        '200':
+          description: Questionnaire
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Profil' }
+        '401': { $ref: '#/components/responses/NonAuthentifie' }
+        '403': { $ref: '#/components/responses/AccesRefuse' }
+        '404': { $ref: '#/components/responses/Introuvable' }
+    put:
+      tags: [Profil]
+      summary: Remplir ou modifier le questionnaire
+      security: [{ jwt: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [logement, aEnfants, aChien, aChat, tempsDisponible]
+              properties:
+                logement: { $ref: '#/components/schemas/Logement' }
+                aEnfants: { type: boolean, example: false }
+                aChien: { type: boolean, example: false }
+                aChat: { type: boolean, example: true }
+                tempsDisponible: { $ref: '#/components/schemas/TempsDisponible' }
+      responses:
+        '200':
+          description: Questionnaire enregistré
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Profil' }
+        '400': { $ref: '#/components/responses/DonneesInvalides' }
+        '401': { $ref: '#/components/responses/NonAuthentifie' }
+        '403': { $ref: '#/components/responses/AccesRefuse' }
+
+  /profil/matchs:
+    get:
+      tags: [Profil]
+      summary: Animaux disponibles triés par compatibilité
+      security: [{ jwt: [] }]
+      responses:
+        '200':
+          description: Du plus compatible au moins compatible
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/AnimalCarte'
+                    - type: object
+                      properties:
+                        score: { type: integer, minimum: 0, maximum: 100, example: 100 }
+                        plafonne: { type: boolean, example: false }
+        '401': { $ref: '#/components/responses/NonAuthentifie' }
+        '403': { $ref: '#/components/responses/AccesRefuse' }
+        '409': { $ref: '#/components/responses/Conflit' }
+
+  /profil/compatibilite/{idAnimal}:
+    get:
+      tags: [Profil]
+      summary: Score détaillé avec un animal
+      security: [{ jwt: [] }]
+      parameters:
+        - name: idAnimal
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: Score sur 100 et détail des 4 critères
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Compatibilite' }
+        '400': { $ref: '#/components/responses/DonneesInvalides' }
+        '401': { $ref: '#/components/responses/NonAuthentifie' }
+        '403': { $ref: '#/components/responses/AccesRefuse' }
+        '404': { $ref: '#/components/responses/Introuvable' }
+        '409': { $ref: '#/components/responses/Conflit' }
+
+  # ------------------------------------------------------------
+  # Demandes
+  # ------------------------------------------------------------
+  /demandes:
+    post:
+      tags: [Demandes]
+      summary: Demander à adopter un animal (adoptant)
+      description: |
+        Conditions : questionnaire rempli, animal disponible, pas déjà de demande en cours pour cet animal.
+        Le score est calculé par le serveur.
+      security: [{ jwt: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [idAnimal, message]
+              properties:
+                idAnimal: { type: integer, minimum: 1, example: 5 }
+                message: { type: string, minLength: 10, maxLength: 1000, example: Je voudrais offrir un foyer à Oslo. }
+      responses:
+        '201':
+          description: Demande créée
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Demande' }
+        '400': { $ref: '#/components/responses/DonneesInvalides' }
+        '401': { $ref: '#/components/responses/NonAuthentifie' }
+        '403': { $ref: '#/components/responses/AccesRefuse' }
+        '404': { $ref: '#/components/responses/Introuvable' }
+        '409': { $ref: '#/components/responses/Conflit' }
+    get:
+      tags: [Demandes]
+      summary: Toutes les demandes (refuge)
+      description: Demandes en cours d'abord, puis les plus récentes.
+      security: [{ jwt: [] }]
+      parameters:
+        - name: statut
+          in: query
+          schema: { $ref: '#/components/schemas/StatutDemande' }
+      responses:
+        '200':
+          description: Liste des demandes
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Demande' }
+        '400': { $ref: '#/components/responses/DonneesInvalides' }
+        '401': { $ref: '#/components/responses/NonAuthentifie' }
+        '403': { $ref: '#/components/responses/AccesRefuse' }
+
+  /demandes/mes-demandes:
+    get:
+      tags: [Demandes]
+      summary: Demandes de l'adoptant connecté
+      security: [{ jwt: [] }]
+      responses:
+        '200':
+          description: Liste des demandes, la plus récente d'abord
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Demande' }
+        '401': { $ref: '#/components/responses/NonAuthentifie' }
+        '403': { $ref: '#/components/responses/AccesRefuse' }
+
+  /demandes/{id}/annulation:
+    parameters:
+      - $ref: '#/components/parameters/IdDemande'
+    patch:
+      tags: [Demandes]
+      summary: Annuler une de ses demandes en cours (adoptant)
+      security: [{ jwt: [] }]
+      responses:
+        '200':
+          description: Demande annulée
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Demande' }
+        '400': { $ref: '#/components/responses/DonneesInvalides' }
+        '401': { $ref: '#/components/responses/NonAuthentifie' }
+        '403': { $ref: '#/components/responses/AccesRefuse' }
+        '404': { $ref: '#/components/responses/Introuvable' }
+        '409': { $ref: '#/components/responses/Conflit' }
+
+  /demandes/{id}/statut:
+    parameters:
+      - $ref: '#/components/parameters/IdDemande'
+    patch:
+      tags: [Demandes]
+      summary: Traiter une demande (refuge)
+      description: |
+        Changements autorisés : reçue → en étude, acceptée ou refusée ; en étude → acceptée ou refusée.
+
+        **Acceptation** (une seule transaction) : la demande est acceptée, l'animal passe « adopté »
+        et les autres demandes en cours pour cet animal sont refusées. Si deux personnes acceptent en même
+        temps deux demandes pour le même animal, une seule réussit (verrouillage de la ligne de l'animal).
+      security: [{ jwt: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [statut]
+              properties:
+                statut: { type: string, enum: [en_etude, acceptee, refusee] }
+      responses:
+        '200':
+          description: Statut modifié
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  demande: { $ref: '#/components/schemas/Demande' }
+                  autresDemandesRefusees: { type: integer, example: 1 }
+        '400': { $ref: '#/components/responses/DonneesInvalides' }
+        '401': { $ref: '#/components/responses/NonAuthentifie' }
+        '403': { $ref: '#/components/responses/AccesRefuse' }
+        '404': { $ref: '#/components/responses/Introuvable' }
+        '409': { $ref: '#/components/responses/Conflit' }
+
+components:
+  securitySchemes:
+    jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Jeton reçu avec POST /auth/connexion
+
+  parameters:
+    IdAnimal:
+      name: id
+      in: path
+      required: true
+      description: Identifiant de l'animal
+      schema: { type: integer, minimum: 1, example: 1 }
+    IdDemande:
+      name: id
+      in: path
+      required: true
+      description: Identifiant de la demande
+      schema: { type: integer, minimum: 1, example: 2 }
+
+  responses:
+    DonneesInvalides:
+      description: Données invalides
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErreurValidation' }
+    NonAuthentifie:
+      description: Jeton absent, invalide ou expiré
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erreur' }
+    AccesRefuse:
+      description: Rôle insuffisant
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erreur' }
+    Introuvable:
+      description: Ressource introuvable
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erreur' }
+    Conflit:
+      description: Action impossible dans l'état actuel (règle métier)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erreur' }
+    TropDeTentatives:
+      description: Trop de tentatives échouées, réessayer dans 15 minutes
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erreur' }
+
+  schemas:
+    Erreur:
+      type: object
+      properties:
+        message: { type: string, example: Animal introuvable. }
+
+    ErreurValidation:
+      type: object
+      properties:
+        message: { type: string, example: Données invalides. }
+        erreurs:
+          type: array
+          items:
+            type: object
+            properties:
+              champ: { type: string, example: taille }
+              message: { type: string, example: 'La taille doit valoir : petit, moyen, grand.' }
+
+    Taille: { type: string, enum: [petit, moyen, grand] }
+    Logement: { type: string, enum: [appartement, maison_sans_jardin, maison_avec_jardin] }
+    TempsDisponible: { type: string, enum: [faible, moyen, eleve] }
+    StatutAnimal: { type: string, enum: [disponible, reserve, adopte] }
+    StatutDemande: { type: string, enum: [recue, en_etude, acceptee, refusee, annulee] }
+
+    Age:
+      type: object
+      description: Âge calculé à partir de la date de naissance
+      properties:
+        annees: { type: integer, example: 3 }
+        mois: { type: integer, example: 8 }
+        libelle: { type: string, example: 3 ans }
+
+    AnimalCarte:
+      type: object
+      properties:
+        id_animal: { type: integer, example: 7 }
+        nom: { type: string, example: Biscotte }
+        sexe: { type: string, enum: [male, femelle] }
+        date_naissance: { type: string, format: date, example: '2023-03-01' }
+        taille: { $ref: '#/components/schemas/Taille' }
+        photo: { type: string, nullable: true }
+        statut: { $ref: '#/components/schemas/StatutAnimal' }
+        nom_race: { type: string, example: Européen }
+        id_espece: { type: integer, example: 2 }
+        nom_espece: { type: string, example: Chats }
+        age: { $ref: '#/components/schemas/Age' }
+
+    AnimalFiche:
+      allOf:
+        - $ref: '#/components/schemas/AnimalCarte'
+        - type: object
+          properties:
+            energie: { type: string, enum: [calme, modere, energique] }
+            ok_enfants: { type: boolean }
+            ok_chiens: { type: boolean }
+            ok_chats: { type: boolean }
+            besoin_jardin: { type: boolean }
+            description: { type: string }
+            sterilise: { type: boolean }
+            identification: { type: string, enum: [puce, tatouage, aucune] }
+            remarques_sante: { type: string, nullable: true }
+            coup_de_coeur: { type: boolean }
+            date_arrivee: { type: string, format: date }
+            id_race: { type: integer }
+            vaccinations:
+              type: array
+              items:
+                type: object
+                properties:
+                  nom_vaccin: { type: string, example: Typhus-Coryza }
+                  date_vaccination: { type: string, format: date, example: '2026-06-03' }
+
+    AnimalSaisie:
+      type: object
+      description: Données envoyées par le refuge pour ajouter ou modifier un animal
+      required:
+        - nom
+        - sexe
+        - dateNaissance
+        - taille
+        - energie
+        - okEnfants
+        - okChiens
+        - okChats
+        - besoinJardin
+        - description
+        - sterilise
+        - identification
+        - coupDeCoeur
+        - dateArrivee
+        - idRace
+      properties:
+        nom: { type: string, maxLength: 50, example: Câlinou }
+        sexe: { type: string, enum: [male, femelle] }
+        dateNaissance: { type: string, format: date, example: '2025-02-14', description: Pas dans le futur }
+        taille: { $ref: '#/components/schemas/Taille' }
+        energie: { type: string, enum: [calme, modere, energique] }
+        okEnfants: { type: boolean, example: true }
+        okChiens: { type: boolean, example: false }
+        okChats: { type: boolean, example: true }
+        besoinJardin: { type: boolean, example: false }
+        description: { type: string, minLength: 10, maxLength: 2000, example: Câlinou est un jeune chat joueur qui adore les plumeaux. }
+        sterilise: { type: boolean, example: true }
+        identification: { type: string, enum: [puce, tatouage, aucune] }
+        remarquesSante: { type: string, maxLength: 1000, nullable: true }
+        photo: { type: string, format: uri, nullable: true, description: Adresse https uniquement }
+        coupDeCoeur: { type: boolean, example: false }
+        dateArrivee: { type: string, format: date, example: '2026-10-30', description: Entre la naissance et aujourd'hui }
+        idRace: { type: integer, example: 7 }
+        vaccinations:
+          type: array
+          maxItems: 30
+          description: Si absent lors d'une modification, les vaccinations existantes sont conservées
+          items:
+            type: object
+            required: [idVaccin, date]
+            properties:
+              idVaccin: { type: integer, example: 3 }
+              date: { type: string, format: date, example: '2026-10-31' }
+
+    Utilisateur:
+      type: object
+      properties:
+        id_utilisateur: { type: integer, example: 3 }
+        email: { type: string, example: lea.dubois@miaoutic.test }
+        prenom: { type: string, example: Léa }
+        nom: { type: string, example: Dubois }
+        role: { type: string, enum: [adoptant, refuge] }
+        date_creation: { type: string, example: '2026-09-03 18:12:00' }
+
+    Profil:
+      type: object
+      properties:
+        id_utilisateur: { type: integer, example: 3 }
+        logement: { $ref: '#/components/schemas/Logement' }
+        a_enfants: { type: boolean }
+        a_chien: { type: boolean }
+        a_chat: { type: boolean }
+        temps_disponible: { $ref: '#/components/schemas/TempsDisponible' }
+        date_maj: { type: string }
+
+    Compatibilite:
+      type: object
+      properties:
+        score: { type: integer, minimum: 0, maximum: 100, example: 30 }
+        plafonne:
+          type: boolean
+          description: Vrai si le score a été plafonné à 30 % (incompatibilité avec les enfants ou les autres animaux)
+          example: true
+        criteres:
+          type: array
+          items:
+            type: object
+            properties:
+              critere: { type: string, enum: [enfants, autres_animaux, logement, temps] }
+              points: { type: integer, example: 0 }
+              max: { type: integer, example: 25 }
+              detail: { type: string, example: Cet animal ne s'entend pas avec vos animaux. }
+
+    Demande:
+      type: object
+      properties:
+        id_demande: { type: integer, example: 10 }
+        id_animal: { type: integer, example: 5 }
+        nom_animal: { type: string, example: Oslo }
+        statut_animal: { $ref: '#/components/schemas/StatutAnimal' }
+        message: { type: string }
+        score_compatibilite: { type: integer, example: 100 }
+        statut: { $ref: '#/components/schemas/StatutDemande' }
+        date_creation: { type: string, example: '2026-11-02 11:32:53' }
+        date_maj: { type: string }
+        id_utilisateur: { type: integer }
+        prenom: { type: string }
+        nom: { type: string }
+        email: { type: string }

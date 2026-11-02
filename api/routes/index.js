@@ -11,6 +11,7 @@ const especeRoutes = require('./especeRoutes');
 const authRoutes = require('./authRoutes');
 const profilRoutes = require('./profilRoutes');
 const demandeRoutes = require('./demandeRoutes');
+const { router: docsRoutes } = require('./docsRoutes');
 
 const router = Router();
 
@@ -22,5 +23,6 @@ router.use('/especes', especeRoutes);
 router.use('/auth', authRoutes);
 router.use('/profil', profilRoutes);
 router.use('/demandes', demandeRoutes);
+router.use('/docs', docsRoutes);
 
 module.exports = router;
