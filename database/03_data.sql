@@ -69,95 +69,146 @@ INSERT INTO profil_adoptant (id_utilisateur, logement, a_enfants, a_chien, a_cha
 -- ------------------------------------------------------------
 -- Animals (16, like the 17 craftsmen of "Trouve ton artisan")
 -- 3 favourites for the home page, 2 reserved, 2 adopted.
+-- Health: sterilised, identification, health notes.
 -- ------------------------------------------------------------
 INSERT INTO animal
     (id_animal, nom, sexe, date_naissance, taille, energie,
      ok_enfants, ok_chiens, ok_chats, besoin_jardin,
-     description, photo, statut, coup_de_coeur, date_arrivee, id_race)
+     description, sterilise, identification, remarques_sante,
+     photo, statut, coup_de_coeur, date_arrivee, id_race)
 VALUES
     -- Dogs
     (1, 'Pépette', 'femelle', '2019-05-10', 'moyen', 'calme',
      TRUE, TRUE, TRUE, FALSE,
      'Douce et posée, Pépette adore les siestes au soleil et les balades tranquilles. Elle s''entend avec tout le monde, chats compris.',
+     TRUE, 'puce', 'Légère arthrose, à surveiller.',
      NULL, 'disponible', TRUE, '2026-06-12', 1),
 
     (2, 'Rocket', 'male', '2023-02-20', 'grand', 'energique',
      TRUE, TRUE, FALSE, TRUE,
      'Un vrai sportif ! Rocket a besoin de grandes promenades et d''un jardin pour se dépenser. Parfait pour une famille active.',
+     TRUE, 'puce', NULL,
      NULL, 'disponible', FALSE, '2026-08-03', 3),
 
     (3, 'Biscuit', 'male', '2021-09-01', 'petit', 'modere',
      FALSE, TRUE, FALSE, FALSE,
      'Petit chien plein de caractère, Biscuit est un peu craintif avec les enfants. Il cherche un foyer calme avec des adultes.',
+     TRUE, 'tatouage', NULL,
      NULL, 'disponible', FALSE, '2026-09-15', 4),
 
     (4, 'Nala', 'femelle', '2020-03-14', 'grand', 'modere',
      TRUE, TRUE, TRUE, TRUE,
      'Nala est une chienne affectueuse et obéissante, qui adore jouer à la balle avec les enfants.',
+     TRUE, 'puce', NULL,
      NULL, 'reserve', FALSE, '2026-05-20', 2),
 
     (5, 'Oslo', 'male', '2016-11-02', 'moyen', 'calme',
      TRUE, FALSE, TRUE, FALSE,
      'Oslo est un senior au grand cœur. Il ne demande qu''un panier moelleux et beaucoup de caresses pour couler des jours heureux.',
+     TRUE, 'puce', 'Complément articulaire quotidien. Chien senior : visite vétérinaire conseillée tous les 6 mois.',
      NULL, 'disponible', TRUE, '2026-07-01', 5),
 
     (6, 'Filou', 'male', '2022-06-30', 'moyen', 'energique',
      TRUE, TRUE, TRUE, TRUE,
      'Joueur et curieux, Filou a besoin d''espace et de longues balades en forêt.',
+     TRUE, 'puce', NULL,
      NULL, 'adopte', FALSE, '2026-03-10', 6),
 
     -- Cats
     (7, 'Biscotte', 'femelle', '2023-03-01', 'petit', 'calme',
      TRUE, FALSE, TRUE, FALSE,
      'Biscotte est une petite câline qui ronronne dès qu''on la prend dans les bras. Elle a peur des chiens.',
+     TRUE, 'puce', NULL,
      NULL, 'disponible', TRUE, '2026-06-01', 7),
 
     (8, 'Moustache', 'male', '2018-08-08', 'moyen', 'calme',
      TRUE, TRUE, TRUE, FALSE,
      'Moustache est un chat sage et discret, idéal pour un premier chat en appartement.',
+     TRUE, 'tatouage', NULL,
      NULL, 'disponible', FALSE, '2026-04-22', 10),
 
     (9, 'Gribouille', 'femelle', '2025-04-15', 'petit', 'energique',
      TRUE, FALSE, TRUE, FALSE,
      'Une boule d''énergie ! Gribouille grimpe partout et adore jouer avec les plumeaux.',
+     FALSE, 'puce', 'Stérilisation prévue avant l''adoption.',
      NULL, 'disponible', FALSE, '2026-07-28', 7),
 
     (10, 'Pacha', 'male', '2020-01-25', 'grand', 'calme',
      FALSE, FALSE, FALSE, FALSE,
      'Pacha porte bien son nom : il aime être le seul roi de la maison, sans enfants ni autres animaux.',
+     TRUE, 'puce', 'Poils longs : brossage quotidien.',
      NULL, 'disponible', FALSE, '2026-02-14', 8),
 
     (11, 'Saphir', 'male', '2022-10-10', 'petit', 'modere',
      TRUE, TRUE, TRUE, FALSE,
      'Saphir est bavard et très attaché à ses humains. Il suit tout le monde de pièce en pièce.',
+     TRUE, 'puce', NULL,
      NULL, 'adopte', FALSE, '2026-01-05', 9),
 
     (12, 'Plume', 'femelle', '2024-12-01', 'petit', 'modere',
      TRUE, TRUE, TRUE, FALSE,
      'Plume est une jeune chatte douce et sociable, qui s''adapte à tous les foyers.',
+     TRUE, 'puce', NULL,
      NULL, 'reserve', FALSE, '2026-09-02', 7),
 
     -- Rabbits
     (13, 'Caramel', 'male', '2024-02-02', 'petit', 'calme',
      TRUE, FALSE, TRUE, FALSE,
      'Caramel est un lapin tranquille qui adore les carottes et les câlins sur le canapé.',
+     TRUE, 'aucune', NULL,
      NULL, 'disponible', FALSE, '2026-08-20', 11),
 
     (14, 'Noisette', 'femelle', '2023-07-07', 'petit', 'modere',
      TRUE, FALSE, TRUE, FALSE,
      'Noisette aime explorer la maison et faire des bonds de joie.',
+     TRUE, 'aucune', NULL,
      NULL, 'disponible', FALSE, '2026-09-10', 12),
 
     -- Rodents
     (15, 'Pistache', 'male', '2025-06-01', 'petit', 'modere',
      TRUE, FALSE, FALSE, FALSE,
      'Pistache est un cochon d''Inde gourmand qui couine de joie à l''heure du repas.',
+     FALSE, 'aucune', 'Apport de vitamine C indispensable (poivron, persil). À adopter avec un congénère.',
      NULL, 'disponible', FALSE, '2026-10-01', 13),
 
     (16, 'Mimosa', 'femelle', '2025-08-15', 'petit', 'energique',
      TRUE, FALSE, FALSE, FALSE,
      'Mimosa est une ratte très intelligente et joueuse, qui apprend vite des petits tours.',
+     FALSE, 'aucune', 'Vit en groupe : à adopter avec une congénère.',
      NULL, 'disponible', FALSE, '2026-10-10', 14);
+
+-- ------------------------------------------------------------
+-- Vaccines and vaccinations
+-- ------------------------------------------------------------
+INSERT INTO vaccin (id_vaccin, nom_vaccin) VALUES
+    (1, 'CHPPiL'),
+    (2, 'Rage'),
+    (3, 'Typhus-Coryza'),
+    (4, 'Leucose'),
+    (5, 'Myxomatose-VHD');
+
+-- Pépette has received the rabies vaccine twice (booster):
+-- possible because the date is part of the primary key.
+-- The 2 rodents (ids 15 and 16) have no vaccination.
+INSERT INTO vaccination (id_animal, id_vaccin, date_vaccination) VALUES
+    (1,  1, '2026-06-15'),
+    (1,  2, '2025-06-10'),
+    (1,  2, '2026-06-15'),
+    (2,  1, '2026-08-05'),
+    (3,  1, '2026-09-20'),
+    (4,  1, '2026-05-25'),
+    (4,  2, '2026-05-25'),
+    (5,  1, '2026-07-03'),
+    (6,  1, '2026-03-12'),
+    (7,  3, '2026-06-03'),
+    (8,  3, '2026-04-25'),
+    (8,  4, '2026-04-25'),
+    (9,  3, '2026-07-30'),
+    (10, 3, '2026-02-16'),
+    (11, 3, '2026-01-07'),
+    (12, 3, '2026-09-04'),
+    (13, 5, '2026-08-22'),
+    (14, 5, '2026-09-12');
 
 -- ------------------------------------------------------------
 -- Adoption requests

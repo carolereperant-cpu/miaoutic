@@ -1,7 +1,8 @@
 -- ============================================================
 -- 01_schema.sql
--- Miaoutic - relational database (MySQL 8)
+-- Miaoutic - relational database
 -- Creates the database and every table.
+-- Compatible with MySQL 8 and MariaDB 10.4+ (engine shipped with XAMPP).
 --
 -- Naming convention (kept from the "Trouve ton artisan" project):
 --   - snake_case, singular French table names
@@ -106,10 +107,10 @@ CREATE TABLE profil_adoptant (
 
 -- ============================================================
 -- TABLE: animal
--- Animals of the shelter.
--- Only structured data used for filtering and for the
--- compatibility score lives here. Free-form health and
--- personality details live in MongoDB (collection fiches_animaux).
+-- Animals of the shelter: identity, compatibility criteria
+-- (used by the filters and the compatibility score) and the
+-- main health information. Vaccinations are stored in their
+-- own table because an animal can receive several of them.
 -- ============================================================
 CREATE TABLE animal (
     id_animal       INT             NOT NULL AUTO_INCREMENT,
@@ -130,6 +131,13 @@ CREATE TABLE animal (
     besoin_jardin   BOOLEAN         NOT NULL DEFAULT FALSE,
 
     description     TEXT            NOT NULL,
+
+    -- Health
+    sterilise       BOOLEAN         NOT NULL DEFAULT FALSE,
+    -- Mandatory identification of dogs and cats in France
+    identification  ENUM('puce', 'tatouage', 'aucune') NOT NULL DEFAULT 'aucune',
+    -- Treatments, points to watch... (optional)
+    remarques_sante TEXT            NULL,
 
     -- Optional picture (path or URL)
     photo           VARCHAR(255)    NULL,
@@ -155,6 +163,47 @@ CREATE TABLE animal (
 
 -- The list page always filters on the status: an index speeds it up
 CREATE INDEX idx_animal_statut ON animal (statut);
+
+-- ============================================================
+-- TABLE: vaccin
+-- Reference list of vaccines (CHPPiL, Rage, Typhus-Coryza...).
+-- A separate table avoids typing the same vaccine name again
+-- for every animal (third normal form).
+-- ============================================================
+CREATE TABLE vaccin (
+    id_vaccin       INT             NOT NULL AUTO_INCREMENT,
+    nom_vaccin      VARCHAR(100)    NOT NULL,
+
+    CONSTRAINT pk_vaccin PRIMARY KEY (id_vaccin),
+    CONSTRAINT uq_vaccin_nom UNIQUE (nom_vaccin)
+) ENGINE = InnoDB;
+
+-- ============================================================
+-- TABLE: vaccination
+-- Association table between animal and vaccin (many-to-many),
+-- carrying the date of the injection.
+-- The date belongs to the primary key so that the same vaccine
+-- can be given again later (booster).
+-- ============================================================
+CREATE TABLE vaccination (
+    id_animal         INT           NOT NULL,
+    id_vaccin         INT           NOT NULL,
+    date_vaccination  DATE          NOT NULL,
+
+    CONSTRAINT pk_vaccination PRIMARY KEY (id_animal, id_vaccin, date_vaccination),
+
+    -- CASCADE: if an animal is deleted, its vaccinations go with it
+    CONSTRAINT fk_vaccination_animal
+        FOREIGN KEY (id_animal) REFERENCES animal (id_animal)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    -- RESTRICT: a vaccine already given cannot be deleted
+    CONSTRAINT fk_vaccination_vaccin
+        FOREIGN KEY (id_vaccin) REFERENCES vaccin (id_vaccin)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE
+) ENGINE = InnoDB;
 
 -- ============================================================
 -- TABLE: demande_adoption

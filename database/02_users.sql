@@ -12,13 +12,18 @@
 -- lives in the API .env file, which is ignored by Git.
 -- ============================================================
 
-DROP USER IF EXISTS 'miaoutic_app'@'%';
+-- The account is created for 'localhost' and '127.0.0.1':
+-- depending on the server settings, a local connection is
+-- identified by one name or the other (XAMPP development).
+-- In production, replace these hosts with the address of the
+-- API server.
+DROP USER IF EXISTS 'miaoutic_app'@'localhost';
+DROP USER IF EXISTS 'miaoutic_app'@'127.0.0.1';
 
--- '%' accepts connections from any host, which is needed when
--- MySQL runs in a Docker container during development.
--- In production, replace '%' with the address of the API server.
-CREATE USER 'miaoutic_app'@'%' IDENTIFIED BY 'CHANGE_ME_STRONG_PASSWORD';
+CREATE USER 'miaoutic_app'@'localhost' IDENTIFIED BY 'CHANGE_ME_STRONG_PASSWORD';
+CREATE USER 'miaoutic_app'@'127.0.0.1' IDENTIFIED BY 'CHANGE_ME_STRONG_PASSWORD';
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON miaoutic.* TO 'miaoutic_app'@'%';
+GRANT SELECT, INSERT, UPDATE, DELETE ON miaoutic.* TO 'miaoutic_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON miaoutic.* TO 'miaoutic_app'@'127.0.0.1';
 
 FLUSH PRIVILEGES;

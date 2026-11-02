@@ -20,34 +20,32 @@ Projet réalisé dans le cadre du titre professionnel Développeur web et web mo
 |---|---|
 | Front-end | React, Vite, Bootstrap, Sass |
 | Back-end | Node.js, Express (architecture multicouche : routes, controllers, services, models, middlewares) |
-| Base relationnelle | MySQL 8 |
-| Base NoSQL | MongoDB (fiches santé et caractère des animaux) |
+| Base de données | MySQL / MariaDB (XAMPP en développement) |
 | Sécurité | JWT, bcrypt, Helmet, validation des entrées, limitation du débit |
 
 ## Base de données
 
-### MySQL
+La base est relationnelle (MySQL, ou MariaDB fourni avec XAMPP). Les scripts se trouvent
+dans `database/` et s'exécutent dans l'ordre :
 
-Les scripts se trouvent dans `database/` et s'exécutent dans l'ordre :
-
-1. `01_schema.sql` : création de la base et des tables
-2. `02_users.sql` : création du compte MySQL utilisé par l'API (droits limités)
-3. `03_data.sql` : jeu de données de test (16 animaux, 6 comptes, 9 demandes)
-
-```bash
-mysql -u root -p < database/01_schema.sql
-mysql -u root -p < database/02_users.sql
-mysql -u root -p < database/03_data.sql
-```
+1. `01_schema.sql` : création de la base et des 8 tables
+2. `02_users.sql` : création du compte utilisé par l'API (droits limités)
+3. `03_data.sql` : jeu de données de test (16 animaux et leurs vaccinations, 6 comptes, 9 demandes)
 
 Avant d'exécuter `02_users.sql`, remplacer `CHANGE_ME_STRONG_PASSWORD` par un mot de passe fort.
 
-### MongoDB
+### Avec phpMyAdmin (XAMPP)
 
-La collection `fiches_animaux` contient les fiches santé et caractère (une par animal, reliée à MySQL par `animalId`).
+1. Démarrer **Apache** et **MySQL** dans le panneau de contrôle XAMPP.
+2. Ouvrir http://localhost/phpmyadmin
+3. Onglet **Importer** : importer les 3 fichiers l'un après l'autre, dans l'ordre.
+
+### En ligne de commande (Windows, XAMPP)
 
 ```bash
-mongosh "mongodb://localhost:27017/miaoutic" database/mongo/01_fiches_animaux.js
+C:\xampp\mysql\bin\mysql.exe -u root --default-character-set=utf8mb4 < database\01_schema.sql
+C:\xampp\mysql\bin\mysql.exe -u root --default-character-set=utf8mb4 < database\02_users.sql
+C:\xampp\mysql\bin\mysql.exe -u root --default-character-set=utf8mb4 < database\03_data.sql
 ```
 
 ### Comptes de test

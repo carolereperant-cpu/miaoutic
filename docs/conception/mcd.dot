@@ -3,17 +3,17 @@ graph MCD {
   node  [fontname="Helvetica", fontsize=12];
   edge  [fontname="Helvetica", fontsize=12, color="#2E2A26"];
 
-  ESPECE [pos="0,561!", shape=plain, label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#B5502F">
+  ESPECE [pos="0,700!", shape=plain, label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#B5502F">
     <TR><TD BGCOLOR="#B5502F"><FONT COLOR="white"><B>ESPECE</B></FONT></TD></TR>
     <TR><TD ALIGN="LEFT"><U>id_espece</U></TD></TR>
     <TR><TD ALIGN="LEFT">nom_espece</TD></TR></TABLE>>];
 
-  RACE [pos="316,561!", shape=plain, label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#B5502F">
+  RACE [pos="316,700!", shape=plain, label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#B5502F">
     <TR><TD BGCOLOR="#B5502F"><FONT COLOR="white"><B>RACE</B></FONT></TD></TR>
     <TR><TD ALIGN="LEFT"><U>id_race</U></TD></TR>
     <TR><TD ALIGN="LEFT">nom_race</TD></TR></TABLE>>];
 
-  ANIMAL [pos="691,561!", shape=plain, label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#B5502F">
+  ANIMAL [pos="691,700!", shape=plain, label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#B5502F">
     <TR><TD BGCOLOR="#B5502F"><FONT COLOR="white"><B>ANIMAL</B></FONT></TD></TR>
     <TR><TD ALIGN="LEFT"><U>id_animal</U></TD></TR>
     <TR><TD ALIGN="LEFT">nom</TD></TR>
@@ -26,6 +26,9 @@ graph MCD {
     <TR><TD ALIGN="LEFT">ok_chats</TD></TR>
     <TR><TD ALIGN="LEFT">besoin_jardin</TD></TR>
     <TR><TD ALIGN="LEFT">description</TD></TR>
+    <TR><TD ALIGN="LEFT">sterilise</TD></TR>
+    <TR><TD ALIGN="LEFT">identification</TD></TR>
+    <TR><TD ALIGN="LEFT">remarques_sante</TD></TR>
     <TR><TD ALIGN="LEFT">photo</TD></TR>
     <TR><TD ALIGN="LEFT">statut</TD></TR>
     <TR><TD ALIGN="LEFT">coup_de_coeur</TD></TR>
@@ -59,11 +62,17 @@ graph MCD {
     <TR><TD ALIGN="LEFT">temps_disponible</TD></TR>
     <TR><TD ALIGN="LEFT">date_maj</TD></TR></TABLE>>];
 
+  VACCIN [pos="1110,700!", shape=plain, label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#B5502F">
+    <TR><TD BGCOLOR="#B5502F"><FONT COLOR="white"><B>VACCIN</B></FONT></TD></TR>
+    <TR><TD ALIGN="LEFT"><U>id_vaccin</U></TD></TR>
+    <TR><TD ALIGN="LEFT">nom_vaccin</TD></TR></TABLE>>];
+
   node [shape=ellipse, style=filled, fillcolor="#E8F0E9", color="#7A9E7E", fontcolor="#2E2A26"];
-  appartenir [pos="158,561!", label="appartenir"];
-  etre_de    [pos="489,561!", label="être de"];
-  concerner  [pos="691,252!", label="concerner"];
+  appartenir [pos="158,700!", label="appartenir"];
+  etre_de    [pos="489,700!", label="être de"];
+  concerner  [pos="691,300!", label="concerner"];
   deposer    [pos="518,86!", label="déposer"];
+  recevoir [pos="905,700!", label=<recevoir<BR/><FONT POINT-SIZE="11">date_vaccination</FONT>>];
   posseder   [pos="172,86!", label="posséder"];
 
   ESPECE -- appartenir [label="0,n"];
@@ -75,5 +84,7 @@ graph MCD {
   DEMANDE -- deposer   [label="1,1"];
   deposer -- UTILISATEUR [label="0,n"];
   UTILISATEUR -- posseder [label="0,1"];
+  ANIMAL -- recevoir [label="0,n"];
+  recevoir -- VACCIN [label="0,n"];
   posseder -- PROFIL   [label="1,1"];
 }

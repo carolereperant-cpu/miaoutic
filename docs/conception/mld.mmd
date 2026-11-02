@@ -4,6 +4,8 @@ erDiagram
     animal ||--o{ demande_adoption : "id_animal"
     utilisateur ||--o{ demande_adoption : "id_utilisateur"
     utilisateur ||--o| profil_adoptant : "id_utilisateur"
+    animal ||--o{ vaccination : "id_animal"
+    vaccin ||--o{ vaccination : "id_vaccin"
 
     espece {
         INT id_espece PK
@@ -26,6 +28,9 @@ erDiagram
         BOOLEAN ok_chats
         BOOLEAN besoin_jardin
         TEXT description
+        BOOLEAN sterilise
+        ENUM identification "puce, tatouage, aucune"
+        TEXT remarques_sante "NULL"
         VARCHAR(255) photo "NULL"
         ENUM statut "disponible, reserve, adopte"
         BOOLEAN coup_de_coeur
@@ -60,4 +65,13 @@ erDiagram
         DATETIME date_creation
         DATETIME date_maj
         TINYINT est_active "colonne calculee, UK"
+    }
+    vaccin {
+        INT id_vaccin PK
+        VARCHAR(100) nom_vaccin UK
+    }
+    vaccination {
+        INT id_animal PK, FK
+        INT id_vaccin PK, FK
+        DATE date_vaccination PK
     }
