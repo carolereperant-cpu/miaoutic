@@ -314,6 +314,110 @@ textarea:focus-visible {
 }
 
 // ------------------------------------------------------------
+// COMPATIBILITY ("% de match")
+// ------------------------------------------------------------
+$match-low-bg:   #F6DDD3;
+$match-low-text: #7A2E17;
+
+.match-badge {
+  display: inline-block;
+  padding: 0.25rem 0.7rem;
+  border-radius: 2rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+
+  &--high   { background: $color-sage-light; color: $color-sage-dark; }
+  &--medium { background: $color-honey-light; color: $color-honey-dark; }
+  &--low    { background: $match-low-bg; color: $match-low-text; }
+}
+
+.match-score {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  &__value {
+    font-family: $headings-font-family;
+    font-size: 2.6rem;
+    font-weight: 600;
+    line-height: 1;
+    color: $color-terracotta;
+  }
+}
+
+.criteria {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+
+  li {
+    padding: 0.4rem 0;
+    border-bottom: 1px solid rgba($color-dark, 0.08);
+  }
+
+  &__points {
+    font-weight: 700;
+    white-space: nowrap;
+  }
+}
+
+// ------------------------------------------------------------
+// ADOPTION REQUESTS
+// ------------------------------------------------------------
+.request-badge {
+  display: inline-block;
+  padding: 0.25rem 0.7rem;
+  border-radius: 2rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+
+  &--recue    { background: $color-honey-light; color: $color-honey-dark; }
+  &--en_etude { background: #DCE8F5; color: #1F3F66; }
+  &--acceptee { background: $color-sage-light; color: $color-sage-dark; }
+  &--refusee  { background: #F7DCD9; color: #7A1E18; }
+  &--annulee  { background: #ECE8E4; color: $color-dark; }
+}
+
+.request-card {
+  background: #ffffff;
+  border-radius: $border-radius-lg;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  padding: 1rem 1.25rem;
+}
+
+// ------------------------------------------------------------
+// QUESTIONNAIRE
+// ------------------------------------------------------------
+.question {
+  border: 0;
+  padding: 0;
+  margin-bottom: 1.75rem;
+
+  legend {
+    font-family: $headings-font-family;
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+}
+
+// ------------------------------------------------------------
+// ACCOUNT MENU (header)
+// ------------------------------------------------------------
+.account-menu {
+  position: relative;
+
+  .dropdown-menu {
+    right: 0;
+    left: auto;
+    min-width: 13rem;
+  }
+}
+
+// ------------------------------------------------------------
 // HOME PAGE - "Comment adopter ?" section
 // ------------------------------------------------------------
 .how-it-works {

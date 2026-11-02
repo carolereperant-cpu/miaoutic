@@ -7,13 +7,13 @@ import Inscription from './Inscription';
 import { AuthContext } from '../context/authContext';
 import { ApiError } from '../services/api';
 
-function renderPage(register) {
+function renderPage(register, login = vi.fn().mockResolvedValue({ role: 'adoptant' })) {
   render(
-    <AuthContext.Provider value={{ register }}>
+    <AuthContext.Provider value={{ register, login }}>
       <MemoryRouter initialEntries={['/inscription']}>
         <Routes>
           <Route path="/inscription" element={<Inscription />} />
-          <Route path="/connexion" element={<p>Page de connexion</p>} />
+          <Route path="/mon-questionnaire" element={<p>Page du questionnaire</p>} />
         </Routes>
       </MemoryRouter>
     </AuthContext.Provider>,
@@ -53,10 +53,11 @@ test('different confirmation: error, nothing sent', async () => {
   expect(register).not.toHaveBeenCalled();
 });
 
-test('valid form: sent without the confirmation, then login page', async () => {
+test('valid form: sent without the confirmation, logged in, then questionnaire', async () => {
   const user = userEvent.setup();
   const register = vi.fn().mockResolvedValue({});
-  renderPage(register);
+  const login = vi.fn().mockResolvedValue({ role: 'adoptant' });
+  renderPage(register, login);
 
   await fillForm(user);
   await user.click(screen.getByRole('button', { name: 'Créer mon compte' }));
@@ -64,7 +65,8 @@ test('valid form: sent without the confirmation, then login page', async () => {
   expect(register).toHaveBeenCalledWith({
     prenom: 'Camille', nom: 'Petit', email: 'camille.petit@miaoutic.test', motDePasse: 'Chaton#Roux2026',
   });
-  expect(await screen.findByText('Page de connexion')).toBeInTheDocument();
+  expect(login).toHaveBeenCalledWith('camille.petit@miaoutic.test', 'Chaton#Roux2026');
+  expect(await screen.findByText('Page du questionnaire')).toBeInTheDocument();
 });
 
 test('email already used: the message of the API is shown', async () => {

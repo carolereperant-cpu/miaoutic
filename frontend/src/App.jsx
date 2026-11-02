@@ -13,6 +13,10 @@ import ListeAnimaux from './pages/ListeAnimaux';
 import FicheAnimal from './pages/FicheAnimal';
 import Connexion from './pages/Connexion';
 import Inscription from './pages/Inscription';
+import MonQuestionnaire from './pages/MonQuestionnaire';
+import MesMatchs from './pages/MesMatchs';
+import MesDemandes from './pages/MesDemandes';
+import ProtectedRoute from './components/ProtectedRoute';
 import MentionsLegales from './pages/legal/MentionsLegales';
 import DonneesPersonnelles from './pages/legal/DonneesPersonnelles';
 import Accessibilite from './pages/legal/Accessibilite';
@@ -39,6 +43,11 @@ export default function App() {
 
               <Route path="/connexion" element={<Connexion />} />
               <Route path="/inscription" element={<Inscription />} />
+
+              {/* Adopter space (the API checks the role again on every request) */}
+              <Route path="/mon-questionnaire" element={<ProtectedRoute role="adoptant"><MonQuestionnaire /></ProtectedRoute>} />
+              <Route path="/mes-matchs" element={<ProtectedRoute role="adoptant"><MesMatchs /></ProtectedRoute>} />
+              <Route path="/mes-demandes" element={<ProtectedRoute role="adoptant"><MesDemandes /></ProtectedRoute>} />
 
               <Route path="/mentions-legales" element={<MentionsLegales />} />
               <Route path="/donnees-personnelles" element={<DonneesPersonnelles />} />

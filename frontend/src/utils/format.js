@@ -44,3 +44,41 @@ export function formatDate(isoDate) {
 export function countAnimals(count) {
   return count > 1 ? `${count} animaux trouvés` : `${count} animal trouvé`;
 }
+
+export const LOGEMENT_LABELS = {
+  appartement: 'Appartement',
+  maison_sans_jardin: 'Maison sans jardin',
+  maison_avec_jardin: 'Maison avec jardin',
+};
+
+export const TEMPS_LABELS = {
+  faible: 'Peu de temps (moins d\'1 h par jour)',
+  moyen: 'Un peu de temps (1 à 2 h par jour)',
+  eleve: 'Beaucoup de temps (plus de 2 h par jour)',
+};
+
+export const STATUT_DEMANDE_LABELS = {
+  recue: 'Reçue',
+  en_etude: 'En cours d\'étude',
+  acceptee: 'Acceptée',
+  refusee: 'Refusée',
+  annulee: 'Annulée',
+};
+
+export const CRITERE_LABELS = {
+  enfants: 'Enfants',
+  autres_animaux: 'Vos animaux',
+  logement: 'Logement',
+  temps: 'Temps disponible',
+};
+
+/**
+ * Level of a compatibility score, for its colour and its text.
+ * @param {number} score - 0 to 100
+ * @returns {{ niveau: 'high'|'medium'|'low', libelle: string }}
+ */
+export function matchLevel(score) {
+  if (score >= 80) return { niveau: 'high', libelle: 'Coup de foudre' };
+  if (score >= 50) return { niveau: 'medium', libelle: 'Belle affinité' };
+  return { niveau: 'low', libelle: 'Peu compatible' };
+}

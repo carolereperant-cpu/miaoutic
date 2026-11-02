@@ -36,7 +36,7 @@ export default function Connexion() {
     try {
       const utilisateur = await login(form.email, form.motDePasse);
       // Back to the page the user wanted, otherwise to his space
-      const destination = location.state?.from ?? (utilisateur.role === 'refuge' ? '/' : '/animaux');
+      const destination = location.state?.from ?? (utilisateur.role === 'refuge' ? '/' : '/mes-matchs');
       navigate(destination, { replace: true });
     } catch (error) {
       setErrors(fieldErrors(error));

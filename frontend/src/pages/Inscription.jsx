@@ -29,7 +29,7 @@ function validate(form) {
 
 export default function Inscription() {
   useDocumentTitle('Créer un compte');
-  const { register } = useAuth();
+  const { register, login } = useAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState(EMPTY_FORM);
@@ -58,9 +58,9 @@ export default function Inscription() {
     try {
       const { prenom, nom, email, motDePasse } = form; // the confirmation is not sent
       await register({ prenom, nom, email, motDePasse });
-      navigate('/connexion', {
-        state: { message: 'Votre compte est créé ! Vous pouvez vous connecter.', email: email.trim().toLowerCase() },
-      });
+      // Account created: log in directly, then the questionnaire
+      await login(email.trim(), motDePasse);
+      navigate('/mon-questionnaire', { state: { welcome: true } });
     } catch (error) {
       setErrors(fieldErrors(error));
       setGlobalError(error.erreurs?.length ? null : error);

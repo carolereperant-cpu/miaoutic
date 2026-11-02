@@ -1,13 +1,14 @@
 // ============================================================
 // components/AdoptionPanel.jsx
 // Right column of the animal sheet: what the visitor can do.
-//   - animal not available        -> information message
-//   - visitor not logged in       -> log in / create an account
-//   - adopter                     -> % of match and request (next step)
-//   - shelter staff               -> management (next step)
+//   - animal not available   -> information message
+//   - visitor not logged in  -> log in / create an account
+//   - shelter staff          -> information
+//   - adopter                -> % of match and request (AdopterPanel)
 // ============================================================
 
 import { Link, useLocation } from 'react-router-dom';
+import AdopterPanel from './AdopterPanel';
 import { useAuth } from '../hooks/useAuth';
 
 export default function AdoptionPanel({ animal }) {
@@ -38,7 +39,7 @@ export default function AdoptionPanel({ animal }) {
   } else if (user.role === 'refuge') {
     content = <p className="mb-0">Vous êtes connecté avec un compte du refuge.</p>;
   } else {
-    content = <p className="mb-0">Votre % de match et la demande d'adoption arrivent bientôt.</p>;
+    content = <AdopterPanel animal={animal} />;
   }
 
   return (

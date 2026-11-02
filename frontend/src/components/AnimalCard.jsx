@@ -1,15 +1,21 @@
 // ============================================================
 // components/AnimalCard.jsx
-// Reusable animal card, used on the home page and on the list
-// (same layout as the craftsman card of "Trouve ton artisan").
+// Reusable animal card, used on the home page, on the list and
+// on "Mes matchs" (same layout as the craftsman card of
+// "Trouve ton artisan").
 // ============================================================
 
 import { Link } from 'react-router-dom';
 import AnimalAvatar from './AnimalAvatar';
 import StatusBadge from './StatusBadge';
+import MatchBadge from './MatchBadge';
 import { SEXE_LABELS } from '../utils/format';
 
-export default function AnimalCard({ animal }) {
+/**
+ * @param {{ animal: object, score?: number }} props
+ *   score: when given ("Mes matchs"), shown instead of the status
+ */
+export default function AnimalCard({ animal, score }) {
   return (
     <Link to={`/animal/${animal.id_animal}`} className="animal-card p-3">
       <div className="d-flex align-items-center gap-3 mb-3">
@@ -20,11 +26,11 @@ export default function AnimalCard({ animal }) {
         </div>
       </div>
 
-      <div className="d-flex justify-content-between align-items-center gap-2">
+      <div className="d-flex justify-content-between align-items-center gap-2 flex-wrap">
         <span className="animal-card__meta">
           {animal.age?.libelle} · {SEXE_LABELS[animal.sexe] ?? animal.sexe}
         </span>
-        <StatusBadge statut={animal.statut} />
+        {score === undefined ? <StatusBadge statut={animal.statut} /> : <MatchBadge score={score} />}
       </div>
     </Link>
   );

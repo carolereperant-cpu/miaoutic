@@ -7,13 +7,14 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import Logo from './Logo';
+import AccountMenu from './AccountMenu';
 import { getEspeces } from '../services/api';
 import { slugify } from '../utils/format';
 import { useAuth } from '../hooks/useAuth';
 
 export default function Header() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [especes, setEspeces] = useState([]);
   const [recherche, setRecherche] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
@@ -35,15 +36,9 @@ export default function Header() {
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    setMenuOpen(false);
-    navigate('/');
-  };
-
-  // Close the mobile menu when a link inside it is clicked
+  // Close the mobile menu when a link (or the logout button) inside it is clicked
   const closeOnLinkClick = (event) => {
-    if (event.target.closest('a')) setMenuOpen(false);
+    if (event.target.closest('a, [data-close-menu]')) setMenuOpen(false);
   };
 
   return (
@@ -97,14 +92,7 @@ export default function Header() {
 
             <div className="ms-lg-3 d-flex align-items-center gap-2 flex-wrap">
               {user ? (
-                <>
-                  <span className="small">
-                    Bonjour <strong>{user.prenom}</strong>
-                  </span>
-                  <button type="button" className="btn btn-outline-primary btn-sm" onClick={handleLogout}>
-                    Déconnexion
-                  </button>
-                </>
+                <AccountMenu />
               ) : (
                 <Link to="/connexion" className="btn btn-outline-primary">Connexion</Link>
               )}
