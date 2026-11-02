@@ -20,8 +20,9 @@ module.exports = [
       globals: { ...globals.node },
     },
     rules: {
-      // Parameters starting with "_" are intentionally unused
-      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      // Parameters starting with "_" are intentionally unused;
+      // a property removed with { a: _a, ...rest } is allowed too
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_', ignoreRestSiblings: true }],
       'prefer-const': 'error',
       eqeqeq: 'error',
     },

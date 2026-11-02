@@ -78,7 +78,14 @@ npm install
 copy .env.example .env
 ```
 
-Ouvrir le fichier `.env` et renseigner `DB_PASSWORD` avec le mot de passe choisi pour le compte `miaoutic_app`.
+Ouvrir le fichier `.env` et renseigner :
+
+- `DB_PASSWORD` : le mot de passe choisi pour le compte `miaoutic_app` ;
+- `JWT_SECRET` : une clé secrète d'au moins 32 caractères, générée avec la commande ci-dessous.
+
+```bash
+node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+```
 
 ```bash
 npm run dev     # démarre l'API sur http://localhost:3000/api (redémarre à chaque modification)
@@ -111,6 +118,18 @@ api/
 | GET | `/api/animaux` | Animaux disponibles ou réservés. Filtres : `espece` (id), `taille` (`petit`, `moyen`, `grand`), `nom` |
 | GET | `/api/animaux/coups-de-coeur` | Les 3 coups de cœur de la page d'accueil |
 | GET | `/api/animaux/:id` | Fiche complète d'un animal, avec son âge et ses vaccinations |
+| POST | `/api/auth/inscription` | Création d'un compte adoptant (`email`, `motDePasse`, `prenom`, `nom`) |
+| POST | `/api/auth/connexion` | Connexion (`email`, `motDePasse`) : renvoie un jeton JWT valable 2 h |
+| GET | `/api/auth/moi` | Compte de l'utilisateur connecté (en-tête `Authorization: Bearer <jeton>`) |
+
+### Sécurité de l'authentification
+
+- Mots de passe hachés avec bcrypt (coût 12, sel aléatoire)
+- Mot de passe d'au moins 12 caractères avec majuscule, minuscule, chiffre et caractère spécial (recommandation CNIL)
+- Même message d'erreur et même temps de réponse que l'email existe ou non
+- Jeton JWT signé (HS256), durée de vie limitée ; jeton modifié ou non signé refusé
+- Rôle toujours « adoptant » à l'inscription, jamais lu dans la requête
+- Blocage pendant 15 minutes après 10 tentatives échouées
 
 ## Statut
 
