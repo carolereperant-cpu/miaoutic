@@ -18,11 +18,11 @@ Projet réalisé dans le cadre du titre professionnel Développeur web et web mo
 
 | Partie | Technologies |
 |---|---|
-| Front-end | React, Vite, Bootstrap, Sass |
+| Front-end | React 19, Vite, React Router, Bootstrap 5, Sass |
 | Back-end | Node.js, Express 5, mysql2 (requêtes préparées) — architecture multicouche : routes, controllers, services, models, middlewares |
 | Base de données | MySQL / MariaDB (XAMPP en développement) |
 | Sécurité | JWT, bcrypt, Helmet, CORS, express-validator, express-rate-limit |
-| Qualité | Jest et Supertest (tests), ESLint (analyse du code) |
+| Qualité | Jest et Supertest (API), Vitest et React Testing Library (front), ESLint |
 
 ## Base de données
 
@@ -169,6 +169,48 @@ Routes réservées au **refuge** :
 - Jeton JWT signé (HS256), durée de vie limitée ; jeton modifié ou non signé refusé
 - Rôle toujours « adoptant » à l'inscription, jamais lu dans la requête
 - Blocage pendant 15 minutes après 10 tentatives échouées
+
+## Front-end
+
+### Installation
+
+L'API doit être démarrée (voir ci-dessus).
+
+```bash
+cd frontend
+npm install
+npm run dev     # ouvre le site sur http://localhost:5173
+npm test        # tests unitaires (Vitest et React Testing Library)
+npm run lint    # analyse la qualité du code
+npm run build   # version optimisée pour la mise en ligne, dans frontend/dist
+```
+
+Par défaut, le site appelle l'API sur `http://localhost:3000/api`. Pour une autre adresse, créer un fichier
+`frontend/.env` contenant `VITE_API_URL=https://adresse-de-l-api/api`.
+
+### Architecture
+
+```
+frontend/src/
+├── main.jsx            Point d'entrée : polices, styles, application
+├── App.jsx             Routes de l'application
+├── components/         Éléments réutilisables (en-tête, carte animal, champ de formulaire…)
+├── pages/              Une page par adresse (accueil, liste, fiche, connexion…)
+├── context/            État de connexion partagé (AuthProvider)
+├── hooks/              useApi (chargement des données), useAuth, useDocumentTitle
+├── services/api.js     Tous les appels à l'API (fetch), jeton de connexion
+├── utils/              Mise en forme des données, règles du mot de passe
+└── styles/main.scss    Charte graphique (Bootstrap personnalisé avec Sass)
+```
+
+### Choix techniques
+
+- **Même gabarit que le projet « Trouve ton artisan »** : en-tête collant, bannière, cartes, fiche en deux colonnes, pied de page en trois colonnes.
+- **Charte graphique** « Terracotta et sauge » : contrastes vérifiés (au moins 4,5:1 pour les textes).
+- **Polices hébergées avec le site** (Fredoka pour les titres, Nunito pour le texte) : aucune requête vers Google Fonts (vie privée, performance).
+- **Bootstrap importé partiellement** : seuls les modules utilisés sont compilés (éco-conception).
+- **Jeton de connexion dans le `sessionStorage`** : effacé à la fermeture de l'onglet ; un jeton refusé par l'API déconnecte l'utilisateur.
+- **Accessibilité** : lien « Aller au contenu », focus visible, champs reliés à leurs messages d'erreur, focus placé sur le contenu à chaque changement de page. Audit automatique axe-core : aucune violation WCAG 2.1 A/AA sur les pages publiques.
 
 ## Statut
 
