@@ -19,9 +19,10 @@ Projet réalisé dans le cadre du titre professionnel Développeur web et web mo
 | Partie | Technologies |
 |---|---|
 | Front-end | React, Vite, Bootstrap, Sass |
-| Back-end | Node.js, Express (architecture multicouche : routes, controllers, services, models, middlewares) |
+| Back-end | Node.js, Express 5, mysql2 (requêtes préparées) — architecture multicouche : routes, controllers, services, models, middlewares |
 | Base de données | MySQL / MariaDB (XAMPP en développement) |
-| Sécurité | JWT, bcrypt, Helmet, validation des entrées, limitation du débit |
+| Sécurité | JWT, bcrypt, Helmet, CORS, express-validator, express-rate-limit |
+| Qualité | Jest et Supertest (tests), ESLint (analyse du code) |
 
 ## Base de données
 
@@ -64,6 +65,52 @@ Environnement de test uniquement. Mot de passe commun : `Miaoutic#2026`
 ### Documentation de conception
 
 Dans `docs/conception/` : MCD, MLD et règles du score de compatibilité.
+
+## API
+
+### Installation
+
+Prérequis : Node.js 20 ou plus, la base importée (voir ci-dessus) et MySQL démarré dans XAMPP.
+
+```bash
+cd api
+npm install
+copy .env.example .env
+```
+
+Ouvrir le fichier `.env` et renseigner `DB_PASSWORD` avec le mot de passe choisi pour le compte `miaoutic_app`.
+
+```bash
+npm run dev     # démarre l'API sur http://localhost:3000/api (redémarre à chaque modification)
+npm test        # lance les tests automatiques
+npm run lint    # analyse la qualité du code
+```
+
+### Architecture
+
+```
+api/
+├── app.js              Application Express : sécurité, routes, erreurs
+├── server.js           Démarrage : vérifie la base puis ouvre le port
+├── config/             Variables d'environnement, connexion MySQL
+├── routes/             URL → règles de validation → contrôleur
+├── middlewares/        Validation des entrées, gestion des erreurs
+├── controllers/        Reçoit la requête, appelle le service, renvoie la réponse
+├── services/           Règles métier (classes)
+├── models/             Accès aux données : requêtes SQL préparées
+├── utils/              Outils partagés (calcul de l'âge, erreurs HTTP)
+└── tests/              Tests unitaires, tests de sécurité et tests des routes
+```
+
+### Routes disponibles
+
+| Méthode | Route | Description |
+|---|---|---|
+| GET | `/api/health` | État de l'API et de la base de données |
+| GET | `/api/especes` | Espèces avec le nombre d'animaux disponibles |
+| GET | `/api/animaux` | Animaux disponibles ou réservés. Filtres : `espece` (id), `taille` (`petit`, `moyen`, `grand`), `nom` |
+| GET | `/api/animaux/coups-de-coeur` | Les 3 coups de cœur de la page d'accueil |
+| GET | `/api/animaux/:id` | Fiche complète d'un animal, avec son âge et ses vaccinations |
 
 ## Statut
 
