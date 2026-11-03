@@ -5,6 +5,8 @@
 // Secrets (database password, JWT key) never appear in the code.
 // ============================================================
 
+const fs = require('node:fs');
+
 require('dotenv').config({ quiet: true });
 
 const REQUIRED_VARIABLES = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'JWT_SECRET'];
@@ -20,6 +22,23 @@ if (missing.length > 0) {
 // it can create valid tokens: refuse to start with a weak key.
 if (process.env.JWT_SECRET.length < 32) {
   throw new Error('JWT_SECRET must contain at least 32 characters (see .env.example)');
+}
+
+/**
+ * Encrypted connection (TLS) to the database, required by hosted
+ * databases such as Aiven. DB_SSL_CA_FILE is the certificate of the
+ * authority that signed the database certificate: the API checks it,
+ * so it cannot be fooled by a fake server (man in the middle).
+ * Without DB_SSL_CA_FILE (XAMPP on the computer): no encryption.
+ */
+function sslConfig() {
+  const caFile = process.env.DB_SSL_CA_FILE;
+  if (!caFile) return undefined;
+  try {
+    return { ca: fs.readFileSync(caFile, 'utf8'), rejectUnauthorized: true };
+  } catch (error) {
+    throw new Error(`DB_SSL_CA_FILE: cannot read the certificate ${caFile} (${error.code})`, { cause: error });
+  }
 }
 
 module.exports = {
@@ -39,6 +58,7 @@ module.exports = {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
+    ssl: sslConfig(),
   },
 
   jwt: {

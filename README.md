@@ -31,7 +31,8 @@ La base est relationnelle (MySQL, ou MariaDB fourni avec XAMPP). Les scripts se 
 dans `database/` et s'exécutent dans l'ordre :
 
 1. `01_schema.sql` : création de la base et des 8 tables
-2. `02_users.sql` : création du compte utilisé par l'API (droits limités)
+2. `02_users.sql` : création du compte utilisé par l'API (droits limités). Pour une base hébergée (Aiven),
+   `02_users_hebergee.sql` le remplace : connexion depuis un autre serveur, chiffrement obligatoire
 3. `03_referentiel.sql` : espèces, races et vaccins (nécessaires dans tous les environnements)
 4. `04_jeu_essai.sql` : jeu de données de test (16 animaux et leurs vaccinations, 6 comptes, 9 demandes) ;
    **jamais en production**, il contient des comptes de test
@@ -271,18 +272,23 @@ Captures d'écran : dossier [`docs/captures`](docs/captures).
 
 ## Déploiement
 
-Le site se déploie sur un serveur Linux avec Nginx (HTTPS Let's Encrypt), PM2 et MariaDB. La procédure
-complète, les vérifications après la mise en ligne et un résumé en anglais sont dans
-[`docs/deploiement/procedure.md`](docs/deploiement/procedure.md). Chaque mise à jour se fait avec
-`scripts/deploiement.sh` (sauvegarde de la base, code, dépendances, construction, publication, redémarrage
-de l'API, vérification).
+Deux façons de mettre le site en ligne, décrites dans
+[`docs/deploiement/procedure.md`](docs/deploiement/procedure.md) (avec un résumé en anglais) :
+
+- **Serveur Linux** avec Nginx (HTTPS Let's Encrypt), PM2 et MariaDB : chaque mise à jour se fait avec
+  `scripts/deploiement.sh` (sauvegarde de la base, code, dépendances, construction, publication,
+  redémarrage de l'API, vérification).
+- **Version de démonstration gratuite** : front et API sur **Render**, décrits dans `render.yaml`
+  (infrastructure as code), base MySQL 8 chez **Aiven** en connexion chiffrée (TLS). La base est créée
+  avec `api/scripts/executer-sql.js`. Render déploie chaque envoi sur `main`, seulement si les
+  vérifications de GitHub Actions sont passées.
 
 À chaque envoi sur GitHub, **GitHub Actions** analyse le code, lance les tests, construit le front et
 vérifie les dépendances (`.github/workflows/ci.yml`).
 
 ## Statut
 
-Version 1 terminée : 226 tests automatiques pour l'API, 71 pour le front.
+Version 1 terminée : 231 tests automatiques pour l'API, 72 pour le front.
 
 ## About this project (English)
 

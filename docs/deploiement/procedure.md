@@ -1,7 +1,13 @@
 # Procédure de déploiement de Miaoutic
 
-Ce document décrit la mise en ligne de Miaoutic sur un serveur Linux, puis la mise à jour d'une version
-déjà en ligne. Un résumé en anglais se trouve à la fin.
+Ce document décrit deux façons de mettre Miaoutic en ligne :
+
+- sur un **serveur Linux** que l'on administre soi-même (sections 1 à 6) : la solution complète, pour un
+  vrai refuge ;
+- en **version de démonstration gratuite** sur **Render** (front et API) et **Aiven** (base MySQL)
+  (section 7) : la version présentée au jury.
+
+Un résumé en anglais se trouve à la fin.
 
 ## 1. Architecture de production
 
@@ -25,7 +31,7 @@ Navigateur ──HTTPS (443)──> Nginx ──┬── fichiers du front (Rea
 |---|---|---|
 | Ubuntu Server | 24.04 LTS | Système du serveur |
 | Node.js | 22 LTS | Exécute l'API et construit le front |
-| MariaDB | 10.11 (MySQL 8 compatible) | Base de données |
+| MariaDB / MySQL | MariaDB 10.11 et MySQL 8.0 (tous les parcours testés sur les deux) | Base de données |
 | Nginx | 1.24 | Serveur web et proxy inverse |
 | PM2 | 6 | Gestionnaire de processus de l'API |
 | Certbot | 2 | Certificat HTTPS Let's Encrypt, renouvelé automatiquement |
@@ -215,9 +221,85 @@ Puis, sur le serveur : `./scripts/deploiement.sh`. Si la base a été abîmée :
 | Journaux | `pm2 logs miaoutic-api` | pas d'erreur |
 | Référencement | `https://miaoutic.fr/robots.txt` et `/sitemap.xml` | fichiers présents, avec le bon domaine |
 
-## 7. Autre hébergement possible
+## 7. Version de démonstration : Render et Aiven
 
-Sans serveur à administrer, un hébergeur qui propose Node.js et MySQL convient, par exemple alwaysdata
+### 7.1 Architecture
+
+```
+Navigateur ──HTTPS──> Render, site statique « miaoutic » (front React)
+     └─────HTTPS──> Render, web service « miaoutic-api » (API Node.js) ──TLS──> Aiven (MySQL 8)
+```
+
+| Service | Offre | Ce qu'il faut savoir |
+|---|---|---|
+| Render, site statique | Gratuite | HTTPS automatique, en-têtes de sécurité déclarés dans `render.yaml` |
+| Render, web service | Gratuite | **Mise en veille après 15 minutes sans visite** : au réveil, la première requête attend environ une minute (le site affiche « Le serveur se réveille… ») |
+| Aiven for MySQL | Gratuite (1 Go) | Connexion chiffrée obligatoire ; un service inutilisé peut être éteint par Aiven et se rallume depuis sa console |
+
+Toute la configuration de Render est écrite dans le fichier **`render.yaml`** à la racine du dépôt
+(« infrastructure as code ») : services, commandes de construction, variables, règles de réécriture et
+en-têtes de sécurité. Les secrets n'y figurent jamais (`sync: false` : Render demande leur valeur).
+
+### 7.2 Créer la base sur Aiven
+
+1. Sur console.aiven.io, créer un service **MySQL** avec le plan **Free**.
+2. Une fois le service démarré, page **Overview** : noter `Host`, `Port`, `User` (`avnadmin`) et
+   `Password`, puis télécharger le **CA certificate** et l'enregistrer sous `api/ca.pem` (ignoré par Git).
+3. Copier `api/.env.admin.example` en `api/.env.admin` (ignoré par Git) et le remplir. `APP_DB_PASSWORD`
+   est un **nouveau** mot de passe d'au moins 16 caractères pour le compte `miaoutic_app` de l'API.
+4. Créer la base depuis son ordinateur, à travers la connexion chiffrée :
+
+```bash
+cd api
+node scripts/executer-sql.js ../database/01_schema.sql ../database/02_users_hebergee.sql ../database/03_referentiel.sql ../database/04_jeu_essai.sql
+```
+
+`02_users_hebergee.sql` remplace `02_users.sql` : le compte `miaoutic_app` peut se connecter depuis
+n'importe quelle adresse (celle de Render n'est pas fixe), mais **seulement en connexion chiffrée**
+(`REQUIRE SSL`), avec les mêmes droits limités. Le mot de passe est inséré par le script au moment de
+l'exécution, il n'est jamais écrit dans un fichier du dépôt.
+
+Le jeu d'essai (`04_jeu_essai.sql`) est chargé **parce qu'il s'agit d'une démonstration** : le jury peut
+se connecter avec les comptes de test du README. Pour un vrai refuge, on s'arrête à `03_referentiel.sql`
+et le premier compte refuge est créé comme décrit en 4.1.
+
+### 7.3 Créer les services sur Render
+
+1. Sur dashboard.render.com (connexion avec GitHub) : **New > Blueprint**, choisir le dépôt `miaoutic`.
+   Render lit `render.yaml` et propose les deux services.
+2. Renseigner les valeurs demandées :
+
+| Service | Variable | Valeur |
+|---|---|---|
+| miaoutic-api | `CORS_ORIGIN` | `https://miaoutic.onrender.com` |
+| miaoutic-api | `DB_HOST`, `DB_PORT` | valeurs d'Aiven |
+| miaoutic-api | `DB_PASSWORD` | la valeur de `APP_DB_PASSWORD` |
+| miaoutic | `VITE_API_URL` | `https://miaoutic-api.onrender.com/api` |
+| miaoutic | `SITE_URL` | `https://miaoutic.onrender.com` |
+
+3. Service **miaoutic-api** > **Environment** > **Secret Files** : ajouter un fichier nommé
+   `aiven-ca.pem` avec le contenu de `ca.pem` (l'API le lit dans `/etc/secrets/aiven-ca.pem`).
+4. Vérifier les adresses réellement attribuées par Render en haut de la page de chaque service. Si l'un
+   des noms était déjà pris, Render ajoute un suffixe : corriger alors `CORS_ORIGIN`, `VITE_API_URL` et
+   `SITE_URL`, puis **Save, rebuild, and deploy** (le front doit être reconstruit : Vite écrit l'adresse
+   de l'API dans les fichiers au moment de la construction).
+
+### 7.4 Déploiement continu
+
+`autoDeployTrigger: checksPass` : à chaque `git push` sur `main`, Render attend que GitHub Actions ait
+validé la version (analyse du code, tests, construction), puis la déploie. Une version qui casse un test
+n'est jamais mise en ligne. Render vérifie aussi `/api/health` avant de basculer sur la nouvelle version
+de l'API : si elle n'arrive pas à joindre la base, l'ancienne reste en ligne.
+
+### 7.5 Avant une présentation
+
+- La veille et le matin même : vérifier dans la console Aiven que le service MySQL est **Running**.
+- Quelques minutes avant de passer : ouvrir le site pour **réveiller l'API**.
+- Vérifier `https://miaoutic-api.onrender.com/api/health` : `{"api":"ok","database":"ok"}`.
+
+## 8. Autre hébergement possible
+
+Sans serveur à administrer, un hébergeur qui propose Node.js et MySQL convient aussi, par exemple alwaysdata
 (hébergeur français, formule gratuite réservée à un usage personnel : vérifier ses conditions avant de
 choisir) : le front construit est copié dans le dossier web, l'API est déclarée comme
 « site Node.js » avec les mêmes variables d'environnement, et la base est créée avec les scripts 01, 02
@@ -243,3 +325,9 @@ Each update: tests, lint and build pass locally and in GitHub Actions, then `./s
 on the server backs up the database, pulls `main` (fast-forward only), installs production dependencies
 (`npm ci --omit=dev`), builds and publishes the front-end, reloads the API with PM2 and checks
 `/api/health`. The script stops at the first error, so the previous version stays online.
+
+Demonstration version: the front-end (static site) and the API (free web service, which sleeps after
+15 minutes without traffic) run on **Render**, described as code in `render.yaml`; the MySQL 8 database
+is hosted by **Aiven** and only accepts encrypted connections (TLS, certificate checked by the API).
+The database is created from the developer's computer with `api/scripts/executer-sql.js`. Render deploys
+each push on `main` automatically, but only after the GitHub Actions checks have passed.

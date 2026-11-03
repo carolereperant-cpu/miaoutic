@@ -1,11 +1,12 @@
 // Unit tests of reusable components (React Testing Library)
-import { describe, test, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, test, expect, vi } from 'vitest';
+import { render, screen, act } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import AnimalCard from './AnimalCard';
 import StatusBadge from './StatusBadge';
 import PasswordRules from './PasswordRules';
 import ProtectedRoute from './ProtectedRoute';
+import { Loader, SLOW_DELAY_MS } from './Feedback';
 import { AuthContext } from '../context/authContext';
 import { useDocumentTitle, DEFAULT_DESCRIPTION } from '../hooks/useDocumentTitle';
 
@@ -100,5 +101,21 @@ describe('useDocumentTitle (SEO)', () => {
 
     rerender(<Page title="Accueil" />);
     expect(meta('robots')).toBeUndefined();
+  });
+});
+
+describe('Loader', () => {
+  test('explains a long wait (server waking up on a free hosting plan)', () => {
+    vi.useFakeTimers();
+    try {
+      render(<Loader />);
+      expect(screen.getByRole('status')).toHaveTextContent('Chargement en cours…');
+      expect(screen.queryByText(/Le serveur se réveille/)).not.toBeInTheDocument();
+
+      act(() => vi.advanceTimersByTime(SLOW_DELAY_MS));
+      expect(screen.getByRole('status')).toHaveTextContent('Le serveur se réveille, cela peut prendre jusqu\'à une minute.');
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
