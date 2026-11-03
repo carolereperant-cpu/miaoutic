@@ -1,7 +1,7 @@
 // Unit tests of services/CompatibiliteService.js
 // The first cases are the test data set of
 // docs/conception/score-compatibilite.md (same profiles and animals
-// as database/03_data.sql).
+// as database/04_jeu_essai.sql).
 const CompatibiliteService = require('../../services/CompatibiliteService');
 
 const service = new CompatibiliteService();

@@ -4,8 +4,8 @@ Fonctionnalité la plus représentative de Miaoutic : elle traverse toutes les c
 (authentification, validation des entrées, calcul du score côté serveur, règles métier, transaction et
 verrous en base de données).
 
-Environnement : API lancée en local (Node.js 22, MariaDB 10.11), base chargée avec `01_schema.sql` et
-`03_data.sql`. Requêtes envoyées avec curl.
+Environnement : API lancée en local (Node.js 22, MariaDB 10.11), base chargée avec `01_schema.sql`,
+`03_referentiel.sql` et `04_jeu_essai.sql`. Requêtes envoyées avec curl.
 
 ## 1. Score de compatibilité
 

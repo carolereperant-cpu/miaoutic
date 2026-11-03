@@ -35,5 +35,5 @@ un chien, ce qui serait trompeur et dangereux pour l'animal.
 | Thomas (enfants, a un chien) | Biscotte (pas ok chiens) | 25 + 0 + 25 + 25 = 75, plafonné | 30 |
 | Léa (a un chat) | Pacha (pas ok chats, grand) | 25 + 0 + 10 + 25 = 60, plafonné | 30 |
 
-Ces scores sont ceux enregistrés dans `database/03_data.sql`. Les tests unitaires du service
+Ces scores sont ceux enregistrés dans `database/04_jeu_essai.sql`. Les tests unitaires du service
 de compatibilité vérifieront que l'API retrouve exactement les mêmes valeurs.

@@ -31,7 +31,9 @@ dans `database/` et s'exécutent dans l'ordre :
 
 1. `01_schema.sql` : création de la base et des 8 tables
 2. `02_users.sql` : création du compte utilisé par l'API (droits limités)
-3. `03_data.sql` : jeu de données de test (16 animaux et leurs vaccinations, 6 comptes, 9 demandes)
+3. `03_referentiel.sql` : espèces, races et vaccins (nécessaires dans tous les environnements)
+4. `04_jeu_essai.sql` : jeu de données de test (16 animaux et leurs vaccinations, 6 comptes, 9 demandes) ;
+   **jamais en production**, il contient des comptes de test
 
 Avant d'exécuter `02_users.sql`, remplacer `CHANGE_ME_STRONG_PASSWORD` par un mot de passe fort.
 
@@ -39,15 +41,37 @@ Avant d'exécuter `02_users.sql`, remplacer `CHANGE_ME_STRONG_PASSWORD` par un m
 
 1. Démarrer **Apache** et **MySQL** dans le panneau de contrôle XAMPP.
 2. Ouvrir http://localhost/phpmyadmin
-3. Onglet **Importer** : importer les 3 fichiers l'un après l'autre, dans l'ordre.
+3. Onglet **Importer** : importer les 4 fichiers l'un après l'autre, dans l'ordre.
 
 ### En ligne de commande (Windows, XAMPP)
 
 ```bash
 C:\xampp\mysql\bin\mysql.exe -u root --default-character-set=utf8mb4 < database\01_schema.sql
 C:\xampp\mysql\bin\mysql.exe -u root --default-character-set=utf8mb4 < database\02_users.sql
-C:\xampp\mysql\bin\mysql.exe -u root --default-character-set=utf8mb4 < database\03_data.sql
+C:\xampp\mysql\bin\mysql.exe -u root --default-character-set=utf8mb4 < database\03_referentiel.sql
+C:\xampp\mysql\bin\mysql.exe -u root --default-character-set=utf8mb4 < database\04_jeu_essai.sql
 ```
+
+### Sauvegarde et restauration
+
+Les scripts sont dans `database/sauvegarde/`. Les sauvegardes sont écrites dans `backups/`, dossier ignoré
+par Git car elles contiennent des données personnelles.
+
+| Script | Rôle |
+|---|---|
+| `sauvegarde.bat` / `restauration.bat` | Windows avec XAMPP (MySQL dans `C:\xampp\mysql\bin`) |
+| `sauvegarde.sh` / `restauration.sh` | Serveur Linux : sauvegarde compressée, conservée 14 jours, lancée chaque nuit par `cron` |
+| `compte-sauvegarde.sql` | Compte MySQL `miaoutic_backup` en lecture seule, réservé aux sauvegardes |
+
+```bash
+database\sauvegarde\sauvegarde.bat
+database\sauvegarde\restauration.bat backups\miaoutic_2026-11-03_10-15.sql
+```
+
+La sauvegarde (`mysqldump --single-transaction`) copie la base sans bloquer le site. La restauration
+supprime puis recrée toute la base : elle demande de taper `OUI` avant de commencer. Elle a été testée :
+après la suppression de tous les animaux, la restauration a rendu les 16 animaux, leurs vaccinations et
+les demandes, et l'API a continué de fonctionner avec son compte `miaoutic_app`.
 
 ### Comptes de test
 

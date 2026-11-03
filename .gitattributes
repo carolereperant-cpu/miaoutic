@@ -1,0 +1,6 @@
+# Line endings fixed per file type, whatever the Git settings of
+# the computer (Windows converts to CRLF by default):
+# - Windows scripts need CRLF
+# - Linux scripts break with CRLF ("bad interpreter" error)
+*.bat text eol=crlf
+*.sh  text eol=lf

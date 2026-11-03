@@ -1,9 +1,11 @@
 -- ============================================================
--- 03_data.sql
--- Miaoutic - test data set (test environment only)
+-- 04_jeu_essai.sql
+-- Miaoutic - test data set (development and test ONLY, never
+-- in production: it contains test accounts)
 --
--- Run after 01_schema.sql. Explicit ids are used so that the
--- foreign keys below are easy to read and to check.
+-- Run after 01_schema.sql and 03_referentiel.sql. Explicit ids
+-- are used so that the foreign keys below are easy to read and
+-- to check.
 --
 -- Test accounts: every password is  Miaoutic#2026
 -- (stored as bcrypt hashes, cost 12).
@@ -13,34 +15,6 @@
 
 SET NAMES utf8mb4;
 USE miaoutic;
-
--- ------------------------------------------------------------
--- Species (4, like the 4 categories of "Trouve ton artisan")
--- ------------------------------------------------------------
-INSERT INTO espece (id_espece, nom_espece) VALUES
-    (1, 'Chiens'),
-    (2, 'Chats'),
-    (3, 'Lapins'),
-    (4, 'Rongeurs');
-
--- ------------------------------------------------------------
--- Breeds
--- ------------------------------------------------------------
-INSERT INTO race (id_race, nom_race, id_espece) VALUES
-    (1,  'Croisé',            1),
-    (2,  'Labrador',          1),
-    (3,  'Berger australien', 1),
-    (4,  'Jack Russell',      1),
-    (5,  'Beagle',            1),
-    (6,  'Épagneul breton',   1),
-    (7,  'Européen',          2),
-    (8,  'Maine Coon',        2),
-    (9,  'Siamois',           2),
-    (10, 'Chartreux',         2),
-    (11, 'Bélier nain',       3),
-    (12, 'Lapin nain',        3),
-    (13, 'Cochon d''Inde',    4),
-    (14, 'Rat domestique',    4);
 
 -- ------------------------------------------------------------
 -- Users: 2 shelter staff + 4 adopters
@@ -178,15 +152,8 @@ VALUES
      NULL, 'disponible', FALSE, '2026-10-10', 14);
 
 -- ------------------------------------------------------------
--- Vaccines and vaccinations
+-- Vaccinations (the vaccines are in 03_referentiel.sql)
 -- ------------------------------------------------------------
-INSERT INTO vaccin (id_vaccin, nom_vaccin) VALUES
-    (1, 'CHPPiL'),
-    (2, 'Rage'),
-    (3, 'Typhus-Coryza'),
-    (4, 'Leucose'),
-    (5, 'Myxomatose-VHD');
-
 -- Pépette has received the rabies vaccine twice (booster):
 -- possible because the date is part of the primary key.
 -- The 2 rodents (ids 15 and 16) have no vaccination.
