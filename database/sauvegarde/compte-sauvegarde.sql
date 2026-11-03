@@ -1,33 +1,33 @@
 -- ============================================================
 -- compte-sauvegarde.sql
--- Miaoutic - compte MySQL réservé aux sauvegardes (serveur)
+-- Miaoutic - MySQL account reserved for backups (server)
 --
--- Principe du moindre privilège : ce compte peut LIRE la base pour
--- la copier, mais ne peut rien modifier ni supprimer. Si son mot
--- de passe est volé, les données ne peuvent pas être altérées.
+-- Principle of least privilege: this account can READ the database
+-- to copy it, but cannot change or delete anything. If its password
+-- is stolen, the data cannot be altered.
 --
--- Avant de l'exécuter, remplacer CHANGE_ME_BACKUP_PASSWORD par un
--- mot de passe fort. Puis créer sur le serveur un fichier d'options
--- lisible par le seul propriétaire (chmod 600), par exemple
--- /home/miaoutic/.miaoutic-backup.cnf :
+-- Before running it, replace CHANGE_ME_BACKUP_PASSWORD with a strong
+-- password. Then create on the server an option file readable by
+-- its owner only (chmod 600), for example
+-- /home/miaoutic/.miaoutic-backup.cnf:
 --
 --   [client]
 --   user=miaoutic_backup
---   password="le_mot_de_passe"
+--   password="the_password"
 --
--- Les guillemets sont indispensables : sans eux, un # dans le mot
--- de passe est lu comme le début d'un commentaire.
+-- The quotes are required: without them, a # in the password is
+-- read as the start of a comment.
 --
--- et lancer la sauvegarde avec :
+-- Then run the backup with:
 --   MYSQL_DEFAULTS_FILE=/home/miaoutic/.miaoutic-backup.cnf ./database/sauvegarde/sauvegarde.sh
 -- ============================================================
 
 DROP USER IF EXISTS 'miaoutic_backup'@'localhost';
 CREATE USER 'miaoutic_backup'@'localhost' IDENTIFIED BY 'CHANGE_ME_BACKUP_PASSWORD';
 
--- SELECT : lire les données ; SHOW VIEW et TRIGGER : copier la
--- définition des vues et des déclencheurs ; LOCK TABLES : prévu
--- par mysqldump pour les tables qui ne sont pas en InnoDB
+-- SELECT: read the data; SHOW VIEW and TRIGGER: copy the definition
+-- of views and triggers; LOCK TABLES: used by mysqldump for tables
+-- that are not InnoDB
 GRANT SELECT, SHOW VIEW, TRIGGER, LOCK TABLES ON miaoutic.* TO 'miaoutic_backup'@'localhost';
 
 FLUSH PRIVILEGES;

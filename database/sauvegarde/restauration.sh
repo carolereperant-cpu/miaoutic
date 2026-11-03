@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 # ============================================================
-# restauration.sh - Restauration de la base Miaoutic (serveur Linux)
+# restauration.sh - Restore of the Miaoutic database (Linux server)
 #
-# Utilisation :
+# Usage:
 #   ./database/sauvegarde/restauration.sh backups/miaoutic_2026-11-03_02-00.sql.gz
 #   ./database/sauvegarde/restauration.sh backups/miaoutic_2026-11-03_02-00.sql.gz --oui
-#     (--oui : sans question, pour un script)
+#     (--oui: no question asked, for use in a script)
 #
-# ATTENTION : la base actuelle est supprimée puis recréée à partir de
-# la sauvegarde. Les comptes MySQL (miaoutic_app) sont conservés.
-# Nécessite un compte administrateur MySQL (création de la base) :
-# MYSQL_DEFAULTS_FILE peut indiquer son fichier d'options.
+# WARNING: the current database is dropped, then recreated from the
+# backup. The MySQL accounts (miaoutic_app) are kept.
+# Needs a MySQL administrator account (the database is created):
+# MYSQL_DEFAULTS_FILE may point to its option file.
 # ============================================================
 set -euo pipefail
 
@@ -38,7 +38,7 @@ if [ -n "${MYSQL_DEFAULTS_FILE:-}" ]; then
   OPTIONS+=("--defaults-extra-file=$MYSQL_DEFAULTS_FILE")
 fi
 
-# Les sauvegardes du serveur sont compressées (.gz), celles de XAMPP non
+# Server backups are compressed (.gz), XAMPP backups are not
 if [[ "$FILE" == *.gz ]]; then
   gunzip -c "$FILE" | mysql ${OPTIONS[@]+"${OPTIONS[@]}"} --default-character-set=utf8mb4
 else

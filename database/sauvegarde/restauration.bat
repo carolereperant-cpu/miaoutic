@@ -1,12 +1,12 @@
 @echo off
 REM ============================================================
-REM restauration.bat - Restauration de la base Miaoutic (Windows, XAMPP)
+REM restauration.bat - Restore of the Miaoutic database (Windows, XAMPP)
 REM
-REM Utilisation, dans un terminal ouvert a la racine du projet :
+REM Usage, in a terminal opened at the root of the project:
 REM   database\sauvegarde\restauration.bat backups\miaoutic_2026-11-03_10-15.sql
 REM
-REM ATTENTION : la base actuelle est supprimee puis recreee a partir
-REM de la sauvegarde. Les comptes MySQL (miaoutic_app) sont conserves.
+REM WARNING: the current database is dropped, then recreated from
+REM the backup. The MySQL accounts (miaoutic_app) are kept.
 REM ============================================================
 setlocal
 
