@@ -217,8 +217,9 @@ Puis, sur le serveur : `./scripts/deploiement.sh`. Si la base a été abîmée :
 
 ## 7. Autre hébergement possible
 
-Sans serveur à administrer, un hébergeur qui propose Node.js et MySQL (par exemple alwaysdata, offre
-gratuite de 100 Mo) convient : le front construit est copié dans le dossier web, l'API est déclarée comme
+Sans serveur à administrer, un hébergeur qui propose Node.js et MySQL convient, par exemple alwaysdata
+(hébergeur français, formule gratuite réservée à un usage personnel : vérifier ses conditions avant de
+choisir) : le front construit est copié dans le dossier web, l'API est déclarée comme
 « site Node.js » avec les mêmes variables d'environnement, et la base est créée avec les scripts 01, 02
 et 03 depuis phpMyAdmin. Le HTTPS est fourni par l'hébergeur.
 
