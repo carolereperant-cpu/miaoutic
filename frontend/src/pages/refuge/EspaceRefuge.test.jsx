@@ -148,6 +148,18 @@ describe('FormulaireAnimal - add', () => {
     expect(api.post).not.toHaveBeenCalled();
   });
 
+  test('SECURITY: a "javascript:" address is refused for the photo', async () => {
+    const user = userEvent.setup();
+    mockGet({ '/races': RACES, '/vaccins': VACCINS });
+    renderForm();
+
+    await user.type(await screen.findByLabelText('Adresse de la photo (facultatif)'), 'javascript:alert(1)');
+    await user.click(screen.getByRole('button', { name: "Ajouter l'animal" }));
+
+    expect(screen.getByText('La photo doit être une adresse https.')).toBeInTheDocument();
+    expect(api.post).not.toHaveBeenCalled();
+  });
+
   test('a vaccination row can be removed', async () => {
     const user = userEvent.setup();
     mockGet({ '/races': RACES, '/vaccins': VACCINS });
@@ -374,6 +386,16 @@ describe('DemandesRefuge', () => {
 
     expect(api.get).toHaveBeenLastCalledWith('/demandes?statut=acceptee', expect.anything());
     expect(await screen.findByText('1 demande')).toBeInTheDocument();
+  });
+
+  test('SECURITY (XSS): HTML written in a message is shown as text, never run', async () => {
+    const attack = '<img src="x" onerror="window.piege = true"> Bonjour';
+    mockGet({ '/demandes': [{ ...DEMANDES[0], message: attack }] });
+    const { container } = render(<MemoryRouter><DemandesRefuge /></MemoryRouter>);
+
+    expect(await screen.findByText(attack)).toBeInTheDocument();
+    expect(container.querySelector('.request-message img')).toBeNull();
+    expect(window.piege).toBeUndefined();
   });
 
   test('a conflict (request already handled elsewhere) is shown', async () => {

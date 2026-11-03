@@ -144,7 +144,7 @@ function QuestionnaireForm({ initial, isNew }) {
 }
 
 export default function MonQuestionnaire() {
-  useDocumentTitle('Mon questionnaire');
+  useDocumentTitle('Mon questionnaire', { noindex: true });
   const location = useLocation();
   const { data, loading, error } = useApi('/profil');
 

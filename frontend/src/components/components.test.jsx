@@ -7,6 +7,7 @@ import StatusBadge from './StatusBadge';
 import PasswordRules from './PasswordRules';
 import ProtectedRoute from './ProtectedRoute';
 import { AuthContext } from '../context/authContext';
+import { useDocumentTitle, DEFAULT_DESCRIPTION } from '../hooks/useDocumentTitle';
 
 const BISCOTTE = {
   id_animal: 7,
@@ -75,5 +76,29 @@ describe('ProtectedRoute', () => {
   test('sends a user with another role back to the home page', () => {
     renderWithUser({ prenom: 'Sophie', role: 'refuge' }, 'adoptant');
     expect(screen.getByText('Accueil')).toBeInTheDocument();
+  });
+});
+
+describe('useDocumentTitle (SEO)', () => {
+  function Page({ title, options }) {
+    useDocumentTitle(title, options);
+    return null;
+  }
+  const meta = (name) => document.head.querySelector(`meta[name="${name}"]`)?.getAttribute('content');
+
+  test('public page: title and description for search engines, no "noindex"', () => {
+    render(<Page title="Nos chiens" options={{ description: 'Les chiens du refuge.' }} />);
+    expect(document.title).toBe('Nos chiens - Miaoutic');
+    expect(meta('description')).toBe('Les chiens du refuge.');
+    expect(meta('robots')).toBeUndefined();
+  });
+
+  test('private page: "noindex", then removed on a public page', () => {
+    const { rerender } = render(<Page title="Mes matchs" options={{ noindex: true }} />);
+    expect(meta('robots')).toBe('noindex, nofollow');
+    expect(meta('description')).toBe(DEFAULT_DESCRIPTION);
+
+    rerender(<Page title="Accueil" />);
+    expect(meta('robots')).toBeUndefined();
   });
 });

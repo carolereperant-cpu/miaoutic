@@ -12,7 +12,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { countAnimals } from '../utils/format';
 
 export default function MesMatchs() {
-  useDocumentTitle('Mes matchs');
+  useDocumentTitle('Mes matchs', { noindex: true });
   const { data: matchs, loading, error } = useApi('/profil/matchs');
 
   return (

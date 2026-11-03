@@ -1,6 +1,6 @@
 // Unit tests of the utilities (format, password, form errors)
 import { describe, test, expect } from 'vitest';
-import { slugify, speciesEmoji, formatDate, countAnimals } from './format';
+import { slugify, speciesEmoji, formatDate, countAnimals, sheetDescription } from './format';
 import { isPasswordValid, PASSWORD_RULES } from './password';
 import { fieldErrors } from './formErrors';
 
@@ -63,4 +63,19 @@ test('fieldErrors keeps the first message of each field', () => {
   };
   expect(fieldErrors(error)).toEqual({ email: 'Email invalide.', motDePasse: 'Trop court.' });
   expect(fieldErrors(new Error('network'))).toEqual({});
+});
+
+describe('sheetDescription (SEO)', () => {
+  const ROCKET = { nom: 'Rocket', nom_race: 'Berger australien', sexe: 'male', age: { libelle: '3 ans' } };
+
+  test('short description: kept whole', () => {
+    expect(sheetDescription({ ...ROCKET, description: 'Très joueur.' }))
+      .toBe('Rocket, berger australien mâle de 3 ans, à adopter au refuge Les Pattes Unies. Très joueur.');
+  });
+
+  test('long description: at most 155 characters, cut at the end of a word', () => {
+    const text = sheetDescription({ ...ROCKET, description: 'Adore courir dans le jardin. '.repeat(20) });
+    expect(text.length).toBeLessThanOrEqual(155);
+    expect(text).toMatch(/[a-zé.]…$/);
+  });
 });

@@ -91,7 +91,7 @@ function DemandeCard({ demande, onChange }) {
 }
 
 export default function DemandesRefuge() {
-  useDocumentTitle('Demandes d\'adoption');
+  useDocumentTitle('Demandes d\'adoption', { noindex: true });
   const [statut, setStatut] = useState('');
   const { data: demandes, loading, error, reload } = useApi(statut ? `/demandes?statut=${statut}` : '/demandes');
 

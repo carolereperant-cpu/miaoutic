@@ -16,7 +16,7 @@ import { api } from '../../services/api';
 import { STATUT_ANIMAL_LABELS, countAnimals } from '../../utils/format';
 
 export default function TableauDeBord() {
-  useDocumentTitle('Espace refuge');
+  useDocumentTitle('Espace refuge', { noindex: true });
   const location = useLocation();
   const { data: animaux, loading, error, reload } = useApi('/animaux/gestion');
 

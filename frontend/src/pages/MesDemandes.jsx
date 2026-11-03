@@ -77,7 +77,7 @@ function DemandeItem({ demande, onCancelled }) {
 }
 
 export default function MesDemandes() {
-  useDocumentTitle('Mes demandes');
+  useDocumentTitle('Mes demandes', { noindex: true });
   const { data: demandes, loading, error, reload } = useApi('/demandes/mes-demandes');
 
   return (

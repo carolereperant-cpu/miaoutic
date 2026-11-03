@@ -28,7 +28,10 @@ function validate(form) {
 }
 
 export default function Inscription() {
-  useDocumentTitle('Créer un compte');
+  useDocumentTitle('Créer un compte', {
+    description: 'Créez votre compte Miaoutic, répondez au questionnaire sur votre mode de vie et découvrez '
+      + 'votre % de match avec les animaux du refuge.',
+  });
   const { register, login } = useAuth();
   const navigate = useNavigate();
 

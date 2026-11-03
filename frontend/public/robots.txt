@@ -1,0 +1,9 @@
+# Search engines may visit every public page of Miaoutic.
+# The account pages and the shelter space are private: they are
+# protected by a login (and marked "noindex" in their HTML).
+User-agent: *
+Disallow: /mes-matchs
+Disallow: /mes-demandes
+Disallow: /mon-questionnaire
+Disallow: /refuge
+Disallow: /connexion

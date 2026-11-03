@@ -14,7 +14,7 @@ import { Loader, ErrorAlert } from '../components/Feedback';
 import { useApi } from '../hooks/useApi';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import {
-  SEXE_LABELS, TAILLE_LABELS, ENERGIE_LABELS, IDENTIFICATION_LABELS, formatDate,
+  sheetDescription, SEXE_LABELS, TAILLE_LABELS, ENERGIE_LABELS, IDENTIFICATION_LABELS, formatDate,
 } from '../utils/format';
 
 /** "Oui" / "Non" written in words and coloured */
@@ -25,7 +25,10 @@ function YesNo({ value, yes = 'Oui', no = 'Non' }) {
 export default function FicheAnimal() {
   const { id } = useParams();
   const { data: animal, loading, error } = useApi(`/animaux/${encodeURIComponent(id)}`);
-  useDocumentTitle(animal ? `${animal.nom}, ${animal.nom_race.toLowerCase()}` : 'Fiche animal');
+  useDocumentTitle(animal ? `${animal.nom}, ${animal.nom_race.toLowerCase()}` : 'Fiche animal', {
+    description: animal ? sheetDescription(animal) : undefined,
+    noindex: Boolean(error),
+  });
 
   if (loading) {
     return <div className="container section"><Loader /></div>;

@@ -83,6 +83,19 @@ export function matchLevel(score) {
   return { niveau: 'low', libelle: 'Peu compatible' };
 }
 
+/**
+ * Summary of an animal for search engines (meta description):
+ * about 155 characters, cut at the end of a word.
+ * @param {object} animal - animal sent by the API
+ */
+export function sheetDescription(animal) {
+  const start = `${animal.nom}, ${animal.nom_race.toLowerCase()} ${SEXE_LABELS[animal.sexe].toLowerCase()} `
+    + `de ${animal.age.libelle}, à adopter au refuge Les Pattes Unies. `;
+  const text = start + animal.description.replace(/\s+/g, ' ');
+  if (text.length <= 155) return text;
+  return `${text.slice(0, 154).replace(/\s+\S*$/, '')}…`;
+}
+
 /** Today as 'YYYY-MM-DD' (local date), for date fields */
 export function todayIso() {
   const now = new Date();

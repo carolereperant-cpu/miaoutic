@@ -11,7 +11,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { fieldErrors } from '../utils/formErrors';
 
 export default function Connexion() {
-  useDocumentTitle('Connexion');
+  useDocumentTitle('Connexion', { noindex: true });
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();

@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function NotFound() {
-  useDocumentTitle('Page introuvable');
+  useDocumentTitle('Page introuvable', { noindex: true });
 
   return (
     <div className="not-found">

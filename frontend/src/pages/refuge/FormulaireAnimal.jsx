@@ -398,7 +398,7 @@ export default function FormulaireAnimal() {
   const animal = useApi(isEdit ? `/animaux/${encodeURIComponent(id)}` : null);
 
   const titre = isEdit ? `Modifier ${animal.data?.nom ?? 'un animal'}` : 'Ajouter un animal';
-  useDocumentTitle(titre);
+  useDocumentTitle(titre, { noindex: true });
 
   const loading = races.loading || vaccins.loading || animal.loading;
   const error = races.error ?? vaccins.error ?? animal.error;

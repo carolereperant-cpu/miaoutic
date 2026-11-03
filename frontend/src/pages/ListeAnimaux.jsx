@@ -50,7 +50,15 @@ export default function ListeAnimaux() {
   if (nom) titre = `Résultats pour « ${nom} »`;
   else if (espece) titre = `Nos ${espece.nom_espece.toLowerCase()}`;
   else if (unknownSpecies) titre = 'Espèce introuvable';
-  useDocumentTitle(titre);
+  useDocumentTitle(titre, {
+    description: espece
+      ? `Les ${espece.nom_espece.toLowerCase()} du refuge Les Pattes Unies attendent leur famille : âge, caractère, `
+        + 'santé et % de match avec votre mode de vie.'
+      : 'Tous les animaux du refuge Les Pattes Unies à adopter : chiens, chats, lapins et rongeurs, '
+        + 'avec leur caractère et leur santé.',
+    // Search results and unknown species: nothing useful to index
+    noindex: Boolean(nom) || unknownSpecies,
+  });
 
   const changeTaille = (event) => {
     const next = new URLSearchParams(searchParams);
