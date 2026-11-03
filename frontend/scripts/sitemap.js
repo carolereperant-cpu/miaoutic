@@ -9,7 +9,8 @@
 // (for example SITE_URL=https://miaoutic.fr). Without it, no
 // sitemap is written and the build goes on.
 // When the API answers (VITE_API_URL), the pages of the species
-// and of the animals are added; otherwise only the fixed pages.
+// and of the animals are added; otherwise (first deployment, API
+// not started yet) only the fixed pages.
 // ============================================================
 
 import { appendFile, writeFile } from 'node:fs/promises';
@@ -18,7 +19,10 @@ import { slugify } from '../src/utils/format.js';
 
 const env = loadEnv('production', process.cwd(), '');
 const siteUrl = (env.SITE_URL ?? '').replace(/\/$/, '');
-const apiUrl = env.VITE_API_URL || 'http://localhost:3000/api';
+// In production VITE_API_URL is relative ("/api"): the API of the
+// version already online is then called on the public address
+const apiUrl = new URL(env.VITE_API_URL || 'http://localhost:3000/api', siteUrl || 'http://localhost').href
+  .replace(/\/$/, '');
 
 const FIXED_PAGES = [
   { path: '/', priority: '1.0' },

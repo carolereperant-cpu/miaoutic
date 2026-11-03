@@ -1,0 +1,56 @@
+# ============================================================
+# Continuous integration (GitHub Actions)
+# On every push and pull request: install, static analysis,
+# tests and build, for the API and for the front-end.
+# A version that breaks a test is visible at once on GitHub
+# (red cross next to the commit) and is not deployed.
+# The tests do not need a database: the data access is mocked.
+# ============================================================
+name: Intégration continue
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  api:
+    name: API (lint et tests)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      # Known vulnerabilities in the dependencies used in production
+      - run: npm audit --omit=dev --audit-level=high
+
+  frontend:
+    name: Front-end (lint, tests et construction)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - run: npm audit --omit=dev --audit-level=high

@@ -19,9 +19,21 @@ async function start() {
     process.exit(1);
   }
 
-  app.listen(port, () => {
+  const server = app.listen(port, () => {
     console.log(`API Miaoutic démarrée : http://localhost:${port}/api`);
   });
+
+  // Clean stop (deployment, restart by PM2 or Ctrl+C): finish the
+  // requests in progress, then close the database connections
+  const stop = (signal) => {
+    console.log(`${signal} reçu : arrêt de l'API.`);
+    server.close(async () => {
+      await pool.end();
+      process.exit(0);
+    });
+  };
+  process.on('SIGTERM', stop);
+  process.on('SIGINT', stop);
 }
 
 start();

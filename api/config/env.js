@@ -44,4 +44,10 @@ module.exports = {
 
   // Failed login / sign-up attempts allowed per IP every 15 minutes
   authRateLimit: Number(process.env.AUTH_RATE_LIMIT) || 10,
+
+  // Number of reverse proxies in front of the API in production
+  // (Nginx: 1). Express then reads the real IP of the visitor in the
+  // X-Forwarded-For header; without it, every visitor would have the
+  // IP of the proxy and share the same rate limit. 0 in development.
+  trustProxy: Number(process.env.TRUST_PROXY) || 0,
 };

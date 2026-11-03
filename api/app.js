@@ -10,11 +10,15 @@ const helmet = require('helmet');
 const cors = require('cors');
 const { rateLimit } = require('express-rate-limit');
 
-const { corsOrigin } = require('./config/env');
+const { corsOrigin, trustProxy } = require('./config/env');
 const routes = require('./routes');
 const { notFound, errorHandler } = require('./middlewares/errorHandler');
 
 const app = express();
+
+// Behind a reverse proxy (Nginx in production): trust the IP it
+// sends, so that the rate limits apply to each visitor
+app.set('trust proxy', trustProxy);
 
 // ------------------------------------------------------------
 // SECURITY 1 - Helmet: adds protective HTTP headers
