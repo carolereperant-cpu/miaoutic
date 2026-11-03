@@ -71,8 +71,9 @@ step "6/7 Redémarrage de l'API (PM2)"
 pm2 save > /dev/null
 
 step "7/7 Vérification"
-for attempt in 1 2 3 4 5; do
-  if curl -fsS "http://127.0.0.1:$API_PORT/api/health"; then
+# L'API met quelques secondes à démarrer : jusqu'à 5 essais
+for _ in 1 2 3 4 5; do
+  if curl -fs "http://127.0.0.1:$API_PORT/api/health"; then
     echo
     echo "Déploiement terminé."
     exit 0

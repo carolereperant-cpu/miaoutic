@@ -6,7 +6,7 @@
 // API checks them again and stays the only real protection.
 // ============================================================
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Loader, ErrorAlert } from '../../components/Feedback';
 import { useApi } from '../../hooks/useApi';
@@ -152,6 +152,15 @@ function AnimalForm({ initial, races, vaccins, idAnimal }) {
   // Error sent by the API (the browser errors are in "errors")
   const [apiError, setApiError] = useState(null);
   const [sending, setSending] = useState(false);
+  // Key of the vaccination row added last: it receives the focus
+  const focusRow = useRef(null);
+
+  useEffect(() => {
+    if (focusRow.current !== null) {
+      document.getElementById(`vaccin-${focusRow.current}`)?.focus();
+      focusRow.current = null;
+    }
+  }, [form.vaccinations]);
   const today = todayIso();
 
   // A corrected field loses its error message
@@ -177,8 +186,8 @@ function AnimalForm({ initial, races, vaccins, idAnimal }) {
   const addVaccination = () => {
     const key = nextKey();
     setForm((previous) => ({ ...previous, vaccinations: [...previous.vaccinations, { key, idVaccin: '', date: '' }] }));
-    // Focus the new vaccine select once it is displayed
-    setTimeout(() => document.getElementById(`vaccin-${key}`)?.focus(), 0);
+    // The new vaccine select is focused once it is displayed (effect above)
+    focusRow.current = key;
   };
 
   const removeVaccination = (key) => {
