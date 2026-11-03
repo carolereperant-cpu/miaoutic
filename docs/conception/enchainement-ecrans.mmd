@@ -1,0 +1,56 @@
+%% Enchaînement des écrans de Miaoutic (schéma de navigation)
+%% Rendu : mmdc -i enchainement-ecrans.mmd -o enchainement-ecrans.png
+flowchart LR
+    classDef public fill:#FBF6EF,stroke:#B5502F,stroke-width:2px,color:#2E2A26
+    classDef adoptant fill:#E3EDE4,stroke:#3E5E42,stroke-width:2px,color:#2E2A26
+    classDef refuge fill:#F8E7C4,stroke:#5C3D05,stroke-width:2px,color:#2E2A26
+    classDef partout fill:#FFFFFF,stroke:#7A9E7E,stroke-width:1px,stroke-dasharray:5 4,color:#2E2A26
+
+    subgraph PUB["Partie publique : tout le monde"]
+        ACC["<b>Accueil</b><br/>/"]
+        LISTE["<b>Liste des animaux</b><br/>/animaux · /animaux/:espece<br/>filtre taille, recherche par nom"]
+        FICHE["<b>Fiche animal</b><br/>/animal/:id"]
+        CNX["<b>Connexion</b><br/>/connexion"]
+        INS["<b>Inscription</b><br/>/inscription"]
+    end
+
+    subgraph ADO["Espace adoptant : compte adoptant"]
+        QUEST["<b>Mon questionnaire</b><br/>/mon-questionnaire"]
+        MATCHS["<b>Mes matchs</b><br/>/mes-matchs"]
+        DEM["<b>Mes demandes</b><br/>/mes-demandes"]
+    end
+
+    subgraph REF["Espace refuge : compte refuge"]
+        TDB["<b>Tableau de bord</b><br/>/refuge"]
+        FORM["<b>Formulaire animal</b><br/>/refuge/animaux/nouveau<br/>/refuge/animaux/:id/modifier"]
+        DREF["<b>Demandes d'adoption</b><br/>/refuge/demandes"]
+    end
+
+    PARTOUT["<b>Sur toutes les pages</b><br/>en-tête : logo, espèces, recherche, menu du compte<br/>pied de page : mentions légales, données personnelles,<br/>accessibilité, cookies · adresse inconnue : page 404"]
+
+    ACC -->|"Voir tous les animaux"| LISTE
+    ACC -->|"carte coup de cœur"| FICHE
+    LISTE -->|"carte animal"| FICHE
+    FICHE -->|"Se connecter"| CNX
+    FICHE -->|"Créer un compte"| INS
+    CNX <-->|"lien en bas du formulaire"| INS
+
+    INS -->|"compte créé"| QUEST
+    CNX -->|"adoptant"| MATCHS
+    CNX -->|"refuge"| TDB
+    CNX -.->|"retour à la page demandée"| FICHE
+
+    QUEST -->|"réponses enregistrées"| MATCHS
+    FICHE -->|"questionnaire manquant"| QUEST
+    MATCHS -->|"carte animal + % de match"| FICHE
+    FICHE -->|"Je craque ! puis Suivre mes demandes"| DEM
+
+    TDB -->|"Ajouter / Modifier"| FORM
+    FORM -->|"enregistré ou Annuler"| TDB
+    TDB <-->|"boutons d'en-tête"| DREF
+    FICHE -->|"Modifier la fiche"| FORM
+
+    class ACC,LISTE,FICHE,CNX,INS public
+    class QUEST,MATCHS,DEM adoptant
+    class TDB,FORM,DREF refuge
+    class PARTOUT partout
