@@ -48,6 +48,9 @@ Deux sortes de tests :
 | En-têtes de sécurité (WSTG-CONF-07, ANSSI) | `curl -I https://…/` | CSP, HSTS, `nosniff`, `Referrer-Policy` | Tous présents |
 | API non exposée (WSTG-CONF-01) | `ss -ltn` sur le serveur (`HOST=127.0.0.1`) | L'API n'écoute que sur le serveur lui-même | `127.0.0.1:3000` uniquement |
 | Compte de sauvegarde | `DELETE FROM animal` avec `miaoutic_backup` | Refus | ERROR 1142 « DELETE command denied » |
+| Base hébergée sans chiffrement (WSTG-CRYP-03) | Connexion de `miaoutic_app` sans TLS (MySQL 8, compte `REQUIRE SSL`) | Refus | `ER_ACCESS_DENIED_ERROR` |
+| Faux serveur de base de données | Connexion avec un autre certificat d'autorité que celui du serveur | Refus | `HANDSHAKE_SSL_ERROR` |
+| Chiffrement de la connexion de l'API | `performance_schema` de MySQL pendant que l'API tourne | Connexion chiffrée | TLS 1.3 |
 
 ## 3. Vulnérabilités trouvées pendant le projet et corrections
 
@@ -58,3 +61,5 @@ Deux sortes de tests :
 | Un `#` dans le mot de passe du fichier d'options MySQL était lu comme un commentaire | Sauvegarde impossible avec un mot de passe fort | Mot de passe entre guillemets, documenté dans `compte-sauvegarde.sql` |
 | Le jeu d'essai (comptes au mot de passe public) et les espèces étaient dans le même script | Risque d'installer des comptes de test en production | Séparation en `03_referentiel.sql` (tous les environnements) et `04_jeu_essai.sql` (jamais en production) |
 | `@apidevtools/swagger-parser` 13 ne fonctionnait plus avec Jest | Test de la documentation impossible | Version 10, compatible CommonJS |
+| Sur MySQL 8 (base d'Aiven), supprimer un animal qui a des demandes renvoyait une erreur 500 au lieu de 409 : avec un compte aux droits limités, MySQL 8 envoie un code d'erreur court (`ER_ROW_IS_REFERENCED`), différent de celui de MariaDB (`ER_ROW_IS_REFERENCED_2`) | Erreur technique affichée, message inutile pour le refuge | Les deux codes sont reconnus (et de même pour `ER_NO_REFERENCED_ROW`), tests unitaires pour chacun ; tous les parcours relancés sur MySQL 8 |
+| La base hébergée est sur Internet : sans chiffrement, le mot de passe et les données circuleraient en clair entre Render et Aiven | Interception (homme du milieu) | Connexion TLS avec vérification du certificat d'Aiven (`DB_SSL_CA_FILE`), compte `REQUIRE SSL` |

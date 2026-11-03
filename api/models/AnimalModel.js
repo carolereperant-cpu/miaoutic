@@ -227,7 +227,8 @@ class AnimalModel {
    * Deletes an animal (its vaccinations are deleted by the
    * ON DELETE CASCADE of the vaccination table).
    * @returns {Promise<boolean>} false if the animal did not exist
-   * @throws ER_ROW_IS_REFERENCED_2 if adoption requests point to it
+   * @throws ER_ROW_IS_REFERENCED_2 (MariaDB) or ER_ROW_IS_REFERENCED
+   *   (MySQL 8) if adoption requests point to it
    */
   static async deleteById(id) {
     const [result] = await pool.execute('DELETE FROM animal WHERE id_animal = ?', [id]);

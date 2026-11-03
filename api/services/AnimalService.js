@@ -12,15 +12,23 @@
 const HttpError = require('../utils/HttpError');
 const { computeAge } = require('../utils/age');
 
+// Foreign key errors have two codes: MariaDB (and MySQL for an
+// administrator) sends the "_2" version, with the details of the
+// constraint; MySQL 8 sends the short version to an account with
+// limited rights (miaoutic_app), to hide the structure of the tables.
+const FK_PARENT_MISSING = ['ER_NO_REFERENCED_ROW_2', 'ER_NO_REFERENCED_ROW'];
+const FK_ROW_REFERENCED = ['ER_ROW_IS_REFERENCED_2', 'ER_ROW_IS_REFERENCED'];
+
 /**
  * Turns a database error into a clear message for the user.
  * Most cases are already stopped by the validation rules; this is
  * the last safety net.
  */
 function translateDatabaseError(error) {
+  if (FK_PARENT_MISSING.includes(error.code)) {
+    return new HttpError(400, 'La race ou un vaccin indiqué n\'existe pas.');
+  }
   switch (error.code) {
-    case 'ER_NO_REFERENCED_ROW_2':
-      return new HttpError(400, 'La race ou un vaccin indiqué n\'existe pas.');
     case 'ER_DUP_ENTRY':
       return new HttpError(400, 'La même vaccination est indiquée deux fois.');
     case 'ER_CHECK_CONSTRAINT_VIOLATED': // MySQL
@@ -160,7 +168,7 @@ class AnimalService {
     try {
       deleted = await this.animalModel.deleteById(id);
     } catch (error) {
-      if (error.code === 'ER_ROW_IS_REFERENCED_2') {
+      if (FK_ROW_REFERENCED.includes(error.code)) {
         throw new HttpError(409, 'Cet animal a déjà reçu des demandes d\'adoption : il ne peut pas être supprimé. Changez plutôt son statut.');
       }
       throw error;

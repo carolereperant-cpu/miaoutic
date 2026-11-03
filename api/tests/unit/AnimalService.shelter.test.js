@@ -51,9 +51,12 @@ describe('create', () => {
     expect(animalModel.replaceVaccinations).toHaveBeenCalledWith(17, [], CONNECTION);
   });
 
-  test('ROLLBACK + 400 when a vaccine does not exist (foreign key)', async () => {
+  test.each([
+    ['ER_NO_REFERENCED_ROW_2', 'MariaDB'],
+    ['ER_NO_REFERENCED_ROW', 'MySQL 8, account with limited rights'],
+  ])('ROLLBACK + 400 when a vaccine does not exist (foreign key, %s: %s)', async (code) => {
     const { service, animalModel, transaction } = createService();
-    animalModel.replaceVaccinations.mockRejectedValue(dbError('ER_NO_REFERENCED_ROW_2'));
+    animalModel.replaceVaccinations.mockRejectedValue(dbError(code));
 
     await expect(service.create(DATA)).rejects.toMatchObject({ status: 400 });
     expect(transaction.rolledBack).toBe(true);
@@ -123,9 +126,12 @@ describe('remove', () => {
     expect(animalModel.deleteById).toHaveBeenCalledWith(17);
   });
 
-  test('409 when adoption requests point to the animal', async () => {
+  test.each([
+    ['ER_ROW_IS_REFERENCED_2', 'MariaDB'],
+    ['ER_ROW_IS_REFERENCED', 'MySQL 8, account with limited rights'],
+  ])('409 when adoption requests point to the animal (%s: %s)', async (code) => {
     const { service, animalModel } = createService();
-    animalModel.deleteById.mockRejectedValue(dbError('ER_ROW_IS_REFERENCED_2'));
+    animalModel.deleteById.mockRejectedValue(dbError(code));
     await expect(service.remove(1)).rejects.toMatchObject({ status: 409 });
   });
 
