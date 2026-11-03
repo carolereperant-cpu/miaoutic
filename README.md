@@ -92,7 +92,7 @@ Environnement de test uniquement. Mot de passe commun : `Miaoutic#2026`
 
 | Dossier | Contenu |
 |---|---|
-| [`docs/conception`](docs/conception) | [Expression des besoins et user stories](docs/conception/expression-des-besoins.md), MCD, MLD, [schéma d'enchaînement des écrans](docs/conception/enchainement-ecrans.png), [règles du score de compatibilité](docs/conception/score-compatibilite.md) |
+| [`docs/conception`](docs/conception) | [Expression des besoins et user stories](docs/conception/expression-des-besoins.md), MCD, MLD, [maquettes](docs/conception/maquettes) (ordinateur et mobile), [schéma d'enchaînement des écrans](docs/conception/enchainement-ecrans.png), [règles du score de compatibilité](docs/conception/score-compatibilite.md) |
 | [`docs/tests`](docs/tests) | [Jeu d'essai de la demande d'adoption](docs/tests/jeu-essai-adoption.md), [tests de sécurité (OWASP)](docs/tests/tests-securite.md) |
 | [`docs/deploiement`](docs/deploiement) | [Procédure de déploiement](docs/deploiement/procedure.md) (avec résumé en anglais), configuration Nginx |
 | [`docs/captures`](docs/captures) | Captures d'écran, ordinateur et mobile |
