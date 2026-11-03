@@ -22,7 +22,8 @@ Projet réalisé dans le cadre du titre professionnel Développeur web et web mo
 | Back-end | Node.js, Express 5, mysql2 (requêtes préparées) — architecture multicouche : routes, controllers, services, models, middlewares |
 | Base de données | MySQL / MariaDB (XAMPP en développement) |
 | Sécurité | JWT, bcrypt, Helmet, CORS, express-validator, express-rate-limit |
-| Qualité | Jest et Supertest (API), Vitest et React Testing Library (front), ESLint |
+| Qualité | Jest et Supertest (API), Vitest et React Testing Library (front), ESLint, GitHub Actions |
+| Production | Nginx (HTTPS, en-têtes de sécurité), PM2, MariaDB — voir [la procédure de déploiement](docs/deploiement/procedure.md) |
 
 ## Base de données
 
@@ -86,11 +87,14 @@ Environnement de test uniquement. Mot de passe commun : `Miaoutic#2026`
 | ines.garcia@miaoutic.test | adoptant | Maison sans jardin, enfants |
 | hugo.lefevre@miaoutic.test | adoptant | Pas encore de questionnaire |
 
-### Documentation de conception
+### Documentation
 
-Dans `docs/conception/` : MCD, MLD et règles du score de compatibilité.
-
-Dans `docs/tests/` : jeu d'essai de la demande d'adoption (données en entrée, attendues, obtenues).
+| Dossier | Contenu |
+|---|---|
+| [`docs/conception`](docs/conception) | [Expression des besoins et user stories](docs/conception/expression-des-besoins.md), MCD, MLD, [schéma d'enchaînement des écrans](docs/conception/enchainement-ecrans.png), [règles du score de compatibilité](docs/conception/score-compatibilite.md) |
+| [`docs/tests`](docs/tests) | [Jeu d'essai de la demande d'adoption](docs/tests/jeu-essai-adoption.md), [tests de sécurité (OWASP)](docs/tests/tests-securite.md) |
+| [`docs/deploiement`](docs/deploiement) | [Procédure de déploiement](docs/deploiement/procedure.md) (avec résumé en anglais), configuration Nginx |
+| [`docs/captures`](docs/captures) | Captures d'écran, ordinateur et mobile |
 
 ## API
 
@@ -108,6 +112,9 @@ Ouvrir le fichier `.env` et renseigner :
 
 - `DB_PASSWORD` : le mot de passe choisi pour le compte `miaoutic_app` ;
 - `JWT_SECRET` : une clé secrète d'au moins 32 caractères, générée avec la commande ci-dessous.
+
+Les autres variables gardent leur valeur par défaut en développement ; `HOST` et `TRUST_PROXY` ne servent
+qu'en production (voir la procédure de déploiement).
 
 ```bash
 node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
@@ -259,7 +266,39 @@ Captures d'écran : dossier [`docs/captures`](docs/captures).
 - **Accessibilité** : lien « Aller au contenu », focus visible, champs reliés à leurs messages d'erreur, focus placé sur le contenu à chaque changement de page. Audit automatique axe-core : aucune violation WCAG 2.1 A/AA sur les pages publiques, l'espace adoptant et l'espace refuge (ordinateur et mobile).
 - **Actions irréversibles confirmées dans la page** (supprimer un animal, accepter une adoption) : pas de fenêtre `confirm()` du navigateur, le focus clavier va sur le bouton de confirmation (`ConfirmAction`).
 - **Formulaire animal** : les règles de l'API (dates, URL https, vaccinations) sont vérifiées aussi dans le navigateur pour aider la saisie ; l'API les vérifie de nouveau, c'est elle qui protège les données.
+- **Référencement** : titre et description propres à chaque page, `noindex` sur les pages privées, `robots.txt`, `sitemap.xml` généré à la construction (variable `SITE_URL`), balises Open Graph.
+- **Éco-conception** : pas d'image lourde (emoji quand un animal n'a pas de photo, photos chargées seulement quand elles sont visibles), polices limitées aux caractères latins, pages de l'espace adoptant et de l'espace refuge téléchargées seulement quand on les ouvre (`React.lazy`), fichiers mis en cache un an par le navigateur en production.
+
+## Déploiement
+
+Le site se déploie sur un serveur Linux avec Nginx (HTTPS Let's Encrypt), PM2 et MariaDB. La procédure
+complète, les vérifications après la mise en ligne et un résumé en anglais sont dans
+[`docs/deploiement/procedure.md`](docs/deploiement/procedure.md). Chaque mise à jour se fait avec
+`scripts/deploiement.sh` (sauvegarde de la base, code, dépendances, construction, publication, redémarrage
+de l'API, vérification).
+
+À chaque envoi sur GitHub, **GitHub Actions** analyse le code, lance les tests, construit le front et
+vérifie les dépendances (`.github/workflows/ci.yml`).
 
 ## Statut
 
-Projet en cours de développement.
+Version 1 terminée : 226 tests automatiques pour l'API, 71 pour le front.
+
+## About this project (English)
+
+Miaoutic is an adoption website for an animal shelter, written for the French "Développeur web et web
+mobile" (DWWM) certification. Visitors browse the animals; adopters fill in a lifestyle questionnaire and
+the server computes a compatibility score with each animal; the shelter manages its animals and handles
+adoption requests.
+
+- **Front-end**: React 19, Vite, React Router, Bootstrap 5 (Sass). Accessible (WCAG 2.1 AA checked with
+  axe-core), responsive, unit tested with Vitest and React Testing Library.
+- **Back-end**: REST API with Node.js and Express 5, layered architecture (routes, validators, controllers,
+  services written as classes, models). MySQL / MariaDB accessed with prepared statements; transactions and
+  row locks for the adoption workflow. JWT authentication, bcrypt, Helmet, CORS, rate limiting. Tested with
+  Jest and Supertest, documented with OpenAPI (Swagger UI on `/api/docs`).
+- **Operations**: backup and restore scripts, deployment script, Nginx configuration (HTTPS, security
+  headers), PM2, continuous integration with GitHub Actions. See
+  [the deployment procedure](docs/deploiement/procedure.md) (English summary at the end).
+
+The code comments are written in English; the user interface and the documentation are in French.
