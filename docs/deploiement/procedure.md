@@ -94,6 +94,8 @@ sudo mysql miaoutic -e "UPDATE utilisateur SET role = 'refuge' WHERE email = 'co
 
 ```bash
 PORT=3000
+# L'API n'écoute que sur le serveur lui-même : seul Nginx peut la joindre
+HOST=127.0.0.1
 CORS_ORIGIN=https://miaoutic.fr
 DB_HOST=localhost
 DB_PORT=3306
@@ -208,7 +210,8 @@ Puis, sur le serveur : `./scripts/deploiement.sh`. Si la base a été abîmée :
 | En-têtes de sécurité | `curl -I https://miaoutic.fr` ou securityheaders.com | CSP, HSTS, `X-Content-Type-Options` présents |
 | API et base | `curl https://miaoutic.fr/api/health` | `{"api":"ok","database":"ok"}` |
 | Navigation directe | ouvrir `https://miaoutic.fr/animal/1` | la fiche s'affiche (pas d'erreur 404 de Nginx) |
-| Port de l'API fermé | `curl http://miaoutic.fr:3000` depuis un autre ordinateur | connexion refusée |
+| API non exposée | `ss -ltn \| grep 3000` sur le serveur | `127.0.0.1:3000` uniquement |
+| Pare-feu | `sudo ufw status` | seuls 22, 80 et 443 sont ouverts |
 | Journaux | `pm2 logs miaoutic-api` | pas d'erreur |
 | Référencement | `https://miaoutic.fr/robots.txt` et `/sitemap.xml` | fichiers présents, avec le bon domaine |
 

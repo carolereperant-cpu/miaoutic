@@ -25,6 +25,11 @@ if (process.env.JWT_SECRET.length < 32) {
 module.exports = {
   port: Number(process.env.PORT) || 3000,
 
+  // Network interface of the API. In production: 127.0.0.1, so that
+  // only Nginx, on the same server, can reach it. Empty in
+  // development: every interface (default of Node.js).
+  host: process.env.HOST || undefined,
+
   // Only the front-end at this address may call the API from a browser
   corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
 

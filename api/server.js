@@ -6,7 +6,7 @@
 
 const app = require('./app');
 const pool = require('./config/database');
-const { port } = require('./config/env');
+const { port, host } = require('./config/env');
 
 async function start() {
   // Check the database before accepting requests: if XAMPP is not
@@ -19,9 +19,10 @@ async function start() {
     process.exit(1);
   }
 
-  const server = app.listen(port, () => {
-    console.log(`API Miaoutic démarrée : http://localhost:${port}/api`);
-  });
+  const onListen = () => {
+    console.log(`API Miaoutic démarrée : http://${host ?? 'localhost'}:${port}/api`);
+  };
+  const server = host ? app.listen(port, host, onListen) : app.listen(port, onListen);
 
   // Clean stop (deployment, restart by PM2 or Ctrl+C): finish the
   // requests in progress, then close the database connections
