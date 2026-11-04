@@ -6,6 +6,11 @@ sur son mode de vie, et l'application calcule son « % de match » avec chaque a
 
 Projet réalisé dans le cadre du titre professionnel Développeur web et web mobile (DWWM).
 
+**Version de démonstration en ligne** : https://miaoutic.onrender.com
+(API : https://miaoutic-api.onrender.com/api/health, documentation : https://miaoutic-api.onrender.com/api/docs).
+Après 15 minutes sans visite, l'API gratuite se met en veille : le premier chargement peut prendre
+jusqu'à une minute. Comptes de test : voir plus bas.
+
 ## Fonctionnalités
 
 - Consultation des animaux par espèce, recherche par nom, fiche détaillée
@@ -306,5 +311,8 @@ adoption requests.
 - **Operations**: backup and restore scripts, deployment script, Nginx configuration (HTTPS, security
   headers), PM2, continuous integration with GitHub Actions. See
   [the deployment procedure](docs/deploiement/procedure.md) (English summary at the end).
+- **Live demo**: https://miaoutic.onrender.com (front-end and API on Render, MySQL 8 database on Aiven,
+  encrypted connection). The free API instance sleeps after 15 minutes of inactivity: the first request
+  can take up to a minute.
 
 The code comments are written in English; the user interface and the documentation are in French.

@@ -17,8 +17,10 @@ info:
     `erreurs` quand des champs sont invalides (code 400).
 
 servers:
-  - url: http://localhost:3000/api
-    description: Développement local
+  # Relative address: "Try it out" calls the server that shows this
+  # page (localhost in development, Render once online)
+  - url: /api
+    description: Ce serveur (local ou en ligne)
 
 tags:
   - name: Santé
